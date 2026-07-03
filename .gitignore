@@ -1,0 +1,15 @@
+.env
+.env.*
+logs/
+id_map.json
+it_tickets.db
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+.DS_Store
+.vscode/
+.idea/
+.streamlit/secrets.toml

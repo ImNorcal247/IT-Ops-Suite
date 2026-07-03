@@ -1,0 +1,22 @@
+REMOTE ACCESS POLICY v3.0
+
+Effective Date: March 1, 2026
+Owner: IT Security Team
+
+1. APPROVED REMOTE ACCESS METHODS
+Remote access to the corporate network is permitted only via the corporate VPN using Cisco AnyConnect with MFA required on every connection. Split tunneling is disabled by default; all traffic routes through corporate infrastructure while connected.
+
+2. PERSONAL DEVICES
+Personal laptops and mobile devices may be used to VPN into the network, but only after the corporate MDM (Mobile Device Management) agent has been installed and the device has passed a compliance check confirming disk encryption, an active screen lock, and up-to-date OS patches. Devices that fail the compliance check will be denied VPN access until remediated.
+
+3. PROHIBITED ACTIVITY OVER VPN
+Downloading or storing regulated data (PII, PCI, PHI) to unmanaged personal devices is prohibited even when connected via VPN. Use of unauthorized remote desktop or file-sharing tools to bypass VPN restrictions is a policy violation subject to disciplinary action.
+
+4. SESSION TIMEOUTS
+VPN sessions automatically disconnect after 12 hours of continuous connection or 30 minutes of inactivity, whichever comes first. Users must re-authenticate with MFA to reconnect.
+
+5. CONTRACTOR AND THIRD-PARTY ACCESS
+Contractors and third parties require a signed Remote Access Agreement and a sponsoring manager before VPN credentials are issued. Contractor VPN accounts are provisioned with a hard expiration date matching the contract end date and are not renewed automatically.
+
+6. MONITORING
+All VPN connections are logged, including source IP, device compliance status, and session duration. Logs are retained for 180 days and reviewed by the Security Operations Center for anomalous access patterns.

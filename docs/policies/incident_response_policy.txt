@@ -1,0 +1,27 @@
+INCIDENT RESPONSE POLICY v3.2
+
+Effective Date: February 1, 2026
+Owner: IT Security Team
+
+1. SEVERITY CLASSIFICATION
+Incidents are classified as SEV1 (critical), SEV2 (major), SEV3 (minor), or SEV4 (informational).
+
+SEV1 criteria: confirmed data breach, ransomware activity, complete outage of a revenue-generating system, or any incident affecting more than 50% of users. SEV1 incidents require immediate escalation to the on-call Incident Commander and notification to the CISO within 15 minutes of detection.
+
+SEV2 criteria: significant degradation of a critical system, suspected (unconfirmed) security compromise, or an outage affecting a single business unit. SEV2 incidents require Incident Commander notification within 1 hour.
+
+SEV3 criteria: isolated issue affecting a single user or non-critical system, with a known workaround available.
+
+SEV4 criteria: informational findings requiring no immediate action, such as a failed phishing simulation click with no credential entry.
+
+2. IMMEDIATE ACTIONS FOR SUSPECTED SEV1
+If you suspect a SEV1 incident: do not attempt remediation on your own. Immediately contact the Security Operations Center via the emergency hotline (ext. 4357) or the #incident-response Slack channel. Preserve all logs and do not power off affected systems unless instructed, as this can destroy forensic evidence.
+
+3. INCIDENT COMMANDER ROLE
+The on-call Incident Commander has authority to declare a SEV1, pull in additional responders, and communicate with executive leadership. IC assignments rotate weekly and are posted in the on-call calendar.
+
+4. COMMUNICATION DURING AN INCIDENT
+All incident communication happens in the dedicated incident Slack channel, never over email, to maintain a single source of truth. Status updates are required every 30 minutes during an active SEV1 or SEV2.
+
+5. POST-INCIDENT REVIEW
+Every SEV1 and SEV2 incident requires a blameless post-incident review within 5 business days of resolution, documenting root cause, timeline, and follow-up action items with owners and due dates.
