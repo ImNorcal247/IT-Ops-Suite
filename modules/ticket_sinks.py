@@ -1,10 +1,19 @@
 """
 modules/ticket_sinks.py
 
-Unchanged from the IT-Ticket-Orchestrator repo
-(https://github.com/ImNorcal247/IT-Ticket-Orchestrator). Pluggable
-backends (Mock / ClickUp / ServiceNow), each implementing search_existing()
-for live duplicate checking and create() for writing new tickets.
+Pluggable ticketing backends. Supports four modes via TICKET_MODE:
+"mock" | "clickup" | "servicenow" | "both"
+
+"both" uses MultiSink to fan writes out to ClickUp AND ServiceNow
+simultaneously, and merges duplicate-check reads across both.
+
+IMPORTANT: category->list mapping for ClickUp used to be a module-level
+dict computed once at import time from os.environ. That's a real bug in a
+Streamlit app with a runtime Settings tab: env vars set later in the
+session would silently never be picked up, because the dict was already
+frozen at first import. get_category_to_list() below reads os.environ
+fresh on every call instead, so Settings-tab changes take effect
+immediately on the next pipeline run.
 """
 
 import os
@@ -13,6 +22,8 @@ import json
 import requests
 import ticket_id_map
 
+
+# ── Sink interface ──────────────────────────────────────────────────────────
 
 class TicketSink:
     def search_existing(self, category: str | None = None) -> list[dict]:
@@ -24,6 +35,8 @@ class TicketSink:
     def link_duplicate(self, related_ticket_id: str, raw_input: str) -> dict:
         return {"action": "linked_to_existing", "linked_ticket_id": related_ticket_id, "note": "no comment posted (default behavior)"}
 
+
+# ── Mock sink ────────────────────────────────────────────────────────────────
 
 class MockSink(TicketSink):
     _tickets = [
@@ -47,18 +60,39 @@ class MockSink(TicketSink):
         return {**ticket, "sink": "mock", "external_url": None}
 
 
-CLICKUP_PRIORITY_MAP = {"P1": 1, "P2": 2, "P3": 3, "P4": 4}
+# ── ClickUp sink ─────────────────────────────────────────────────────────────
 
-CATEGORY_TO_LIST = {
-    "Application": os.environ.get("CLICKUP_LIST_APPLICATION", ""),
-    "Network": os.environ.get("CLICKUP_LIST_NETWORK", ""),
-    "Hardware": os.environ.get("CLICKUP_LIST_HARDWARE", ""),
-    "Access": os.environ.get("CLICKUP_LIST_ACCESS", ""),
-    "Database": os.environ.get("CLICKUP_LIST_DATABASE", ""),
-    "Security": os.environ.get("CLICKUP_LIST_SECURITY", ""),
-}
-LIST_TO_CATEGORY = {v: k for k, v in CATEGORY_TO_LIST.items() if v}
+CLICKUP_PRIORITY_MAP = {"P1": 1, "P2": 2, "P3": 3, "P4": 4}
 TICKET_ID_PREFIX_RE = re.compile(r"^\[(INC-\d+)\]\s*(.*)$")
+
+
+def get_category_to_list() -> dict:
+    """Read fresh from os.environ every call — NOT cached at import time —
+    so changes made in the Settings tab take effect on the next run."""
+    return {
+        "Application": os.environ.get("CLICKUP_LIST_APPLICATION", ""),
+        "Network": os.environ.get("CLICKUP_LIST_NETWORK", ""),
+        "Hardware": os.environ.get("CLICKUP_LIST_HARDWARE", ""),
+        "Access": os.environ.get("CLICKUP_LIST_ACCESS", ""),
+        "Database": os.environ.get("CLICKUP_LIST_DATABASE", ""),
+        "Security": os.environ.get("CLICKUP_LIST_SECURITY", ""),
+    }
+
+
+def get_list_to_category() -> dict:
+    return {v: k for k, v in get_category_to_list().items() if v}
+
+
+def test_clickup_connection(token: str) -> tuple[bool, str]:
+    """Lightweight auth check for the Settings tab's Test Connection button."""
+    try:
+        resp = requests.get("https://api.clickup.com/api/v2/user", headers={"Authorization": token}, timeout=10)
+        if resp.status_code == 200:
+            username = resp.json().get("user", {}).get("username", "unknown")
+            return True, f"Connected as {username}"
+        return False, f"HTTP {resp.status_code}: {resp.text[:200]}"
+    except requests.exceptions.RequestException as e:
+        return False, str(e)
 
 
 class ClickUpSink(TicketSink):
@@ -70,17 +104,19 @@ class ClickUpSink(TicketSink):
             raise RuntimeError("CLICKUP_API_TOKEN is not set. search_existing() requires a real token even in dry-run mode.")
 
     def _lists_to_search(self, category: str | None) -> list[str]:
-        ids = set(filter(None, CATEGORY_TO_LIST.values()))
+        category_to_list = get_category_to_list()
+        ids = set(filter(None, category_to_list.values()))
         if self.default_list_id:
             ids.add(self.default_list_id)
         ordered = list(ids)
-        target = CATEGORY_TO_LIST.get(category) if category else None
+        target = category_to_list.get(category) if category else None
         if target and target in ordered:
             ordered.remove(target)
             ordered.insert(0, target)
         return ordered
 
     def search_existing(self, category: str | None = None) -> list[dict]:
+        list_to_category = get_list_to_category()
         results = []
         for list_id in self._lists_to_search(category):
             try:
@@ -98,9 +134,15 @@ class ClickUpSink(TicketSink):
                 name = task.get("name", "")
                 m = TICKET_ID_PREFIX_RE.match(name)
                 internal_id, title = (m.group(1), m.group(2)) if m else (task["id"], name)
+                if m:
+                    # This task was created by this pipeline — backfill the
+                    # ID map opportunistically so a future duplicate match
+                    # against it can post a real comment, same as ServiceNow
+                    # already does during its own search_existing().
+                    ticket_id_map.seed_if_missing(internal_id, "clickup", task["id"], url=task.get("url"))
                 results.append({
                     "id": internal_id, "title": title,
-                    "category": LIST_TO_CATEGORY.get(list_id, "Unknown"),
+                    "category": list_to_category.get(list_id, "Unknown"),
                     "subcategory": ", ".join(tag["name"] for tag in task.get("tags", [])) or "Unknown",
                     "status": task.get("status", {}).get("status", "unknown"),
                     "created": task.get("date_created", ""),
@@ -108,7 +150,8 @@ class ClickUpSink(TicketSink):
         return results
 
     def create(self, ticket: dict) -> dict:
-        list_id = CATEGORY_TO_LIST.get(ticket["category"]) or self.default_list_id
+        category_to_list = get_category_to_list()
+        list_id = category_to_list.get(ticket["category"]) or self.default_list_id
         if not list_id:
             raise RuntimeError(f"No ClickUp List ID configured for category '{ticket['category']}' and no CLICKUP_LIST_ID_DEFAULT set.")
 
@@ -141,7 +184,7 @@ class ClickUpSink(TicketSink):
         return {**ticket, "sink": "clickup", "external_id": external_id, "external_url": external_url}
 
     def link_duplicate(self, related_ticket_id: str, raw_input: str) -> dict:
-        mapping = ticket_id_map.get(related_ticket_id)
+        mapping = ticket_id_map.get(related_ticket_id, sink="clickup")
         if not mapping or not mapping.get("external_id"):
             return {"action": "linked_to_existing", "linked_ticket_id": related_ticket_id, "sink": "clickup", "comment_posted": False}
 
@@ -160,9 +203,27 @@ class ClickUpSink(TicketSink):
         return {"action": "linked_to_existing", "linked_ticket_id": related_ticket_id, "sink": "clickup", "comment_posted": True}
 
 
+# ── ServiceNow sink ──────────────────────────────────────────────────────────
+
 SERVICENOW_PRIORITY_MAP = {"P1": "1", "P2": "2", "P3": "3", "P4": "4"}
 SERVICENOW_IMPACT_MAP = {"High": "1", "Medium": "2", "Low": "3"}
 SERVICENOW_URGENCY_MAP = {"High": "1", "Medium": "2", "Low": "3"}
+
+
+def test_servicenow_connection(instance: str, username: str, password: str) -> tuple[bool, str]:
+    try:
+        resp = requests.get(
+            f"https://{instance}.service-now.com/api/now/table/incident",
+            auth=(username, password),
+            headers={"Accept": "application/json"},
+            params={"sysparm_limit": "1"},
+            timeout=10,
+        )
+        if resp.status_code == 200:
+            return True, "Connected successfully"
+        return False, f"HTTP {resp.status_code}: {resp.text[:200]}"
+    except requests.exceptions.RequestException as e:
+        return False, str(e)
 
 
 class ServiceNowSink(TicketSink):
@@ -230,7 +291,7 @@ class ServiceNowSink(TicketSink):
         return {**ticket, "sink": "servicenow", "external_id": external_id, "external_url": external_url}
 
     def link_duplicate(self, related_ticket_id: str, raw_input: str) -> dict:
-        mapping = ticket_id_map.get(related_ticket_id)
+        mapping = ticket_id_map.get(related_ticket_id, sink="servicenow")
         if not mapping or not mapping.get("sys_id"):
             return {"action": "linked_to_existing", "linked_ticket_id": related_ticket_id, "sink": "servicenow", "comment_posted": False}
 
@@ -250,12 +311,65 @@ class ServiceNowSink(TicketSink):
         return {"action": "linked_to_existing", "linked_ticket_id": related_ticket_id, "sink": "servicenow", "comment_posted": True}
 
 
-def get_sink() -> TicketSink:
-    sink_type = os.environ.get("TICKET_SINK", "mock").lower()
+# ── MultiSink: dual-write to ClickUp + ServiceNow simultaneously ────────────
+
+class MultiSink(TicketSink):
+    """Fans writes out to every active sink and merges reads across them.
+    Used when TICKET_MODE=both. Each underlying sink still owns its own
+    credentials and API logic — this class only orchestrates calling them."""
+
+    def __init__(self, sinks: dict[str, TicketSink]):
+        self.sinks = sinks  # e.g. {"clickup": ClickUpSink(...), "servicenow": ServiceNowSink(...)}
+
+    def search_existing(self, category: str | None = None) -> list[dict]:
+        merged = []
+        for sink in self.sinks.values():
+            merged.extend(sink.search_existing(category=category))
+        return merged
+
+    def create(self, ticket: dict) -> dict:
+        results = {}
+        for name, sink in self.sinks.items():
+            try:
+                results[name] = sink.create(ticket)
+            except requests.exceptions.RequestException as e:
+                results[name] = {"error": str(e)}
+        external_urls = {name: r.get("external_url") for name, r in results.items() if isinstance(r, dict)}
+        return {**ticket, "sink": "both", "results": results, "external_urls": external_urls}
+
+    def link_duplicate(self, related_ticket_id: str, raw_input: str) -> dict:
+        mapping = ticket_id_map.get(related_ticket_id) or {}
+        results = {}
+        for name, sink in self.sinks.items():
+            if name in mapping:
+                results[name] = sink.link_duplicate(related_ticket_id, raw_input)
+            else:
+                results[name] = {"comment_posted": False, "reason": "no mapping for this backend yet"}
+        return {"action": "linked_to_existing", "linked_ticket_id": related_ticket_id, "sink": "both", "results": results}
+
+
+# ── Factory ──────────────────────────────────────────────────────────────────
+
+def get_active_sinks() -> TicketSink:
+    """Reads TICKET_MODE (mock | clickup | servicenow | both) and DRY_RUN,
+    returns a single sink instance, or a MultiSink for dual-write mode.
+    All returned objects implement the same TicketSink interface, so callers
+    never need to know which mode is active."""
+    mode = os.environ.get("TICKET_MODE", "mock").lower()
     dry_run = os.environ.get("DRY_RUN", "false").lower() == "true"
-    if sink_type == "clickup":
+
+    if mode == "both":
+        sinks = {}
+        sinks["clickup"] = ClickUpSink(dry_run=dry_run)
+        sinks["servicenow"] = ServiceNowSink(dry_run=dry_run)
+        return MultiSink(sinks)
+    elif mode == "clickup":
         return ClickUpSink(dry_run=dry_run)
-    elif sink_type == "servicenow":
+    elif mode == "servicenow":
         return ServiceNowSink(dry_run=dry_run)
     else:
         return MockSink()
+
+
+# Back-compat alias — the original single-sink API used this name.
+get_sink = get_active_sinks

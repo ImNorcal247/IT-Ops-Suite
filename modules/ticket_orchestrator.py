@@ -13,7 +13,7 @@ import time
 from datetime import datetime, timezone
 
 import anthropic
-from ticket_sinks import get_sink
+from ticket_sinks import get_active_sinks
 
 client = anthropic.Anthropic()
 MODEL = "claude-opus-4-5"
@@ -124,7 +124,7 @@ def assignment_stage(triage: dict) -> dict:
 def create_ticket(raw_input: str, progress_callback=None) -> dict:
     """progress_callback(stage_name, result_dict) is called after each stage,
     letting the Streamlit UI show live progress instead of only a final result."""
-    sink = get_sink()
+    sink = get_active_sinks()
 
     triage = triage_stage(raw_input)
     if progress_callback:

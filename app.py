@@ -34,8 +34,16 @@ sys.path.insert(0, str(Path(__file__).parent / "modules"))
 from policy_qa import build_knowledge_base, query_policies
 from incident_classifier import classify_incident
 from ticket_orchestrator import create_ticket
+from ticket_sinks import test_clickup_connection, test_servicenow_connection
 
 DB_FILE = "it_tickets.db"
+
+MODE_LABELS = {
+    "mock": "Mock (no external system)",
+    "clickup": "ClickUp only",
+    "servicenow": "ServiceNow only",
+    "both": "Both — dual write",
+}
 
 st.set_page_config(page_title="IT Ops Suite", page_icon="🛠️", layout="wide")
 
@@ -130,9 +138,9 @@ if not os.environ.get("ANTHROPIC_API_KEY"):
 
 df = load_tickets()
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "📊 Ticket Dashboard", "💬 Ask Your Data", "📄 Policy Q&A",
-    "🔧 Incident Classifier", "🎫 Ticket Orchestrator",
+    "🔧 Incident Classifier", "🎫 Ticket Orchestrator", "⚙️ Settings",
 ])
 
 
@@ -334,10 +342,12 @@ with tab4:
 
 with tab5:
     st.subheader("Submit a problem — auto-triage, dedup, route, and file")
+    current_mode = os.environ.get("TICKET_MODE", "mock")
     st.caption(
         "Multi-agent pipeline: triage → live duplicate check → assignment → ticket creation. "
-        f"Current backend: **{os.environ.get('TICKET_SINK', 'mock').upper()}**"
+        f"Current backend: **{MODE_LABELS.get(current_mode, current_mode)}**"
         + (" (dry run)" if os.environ.get("DRY_RUN", "false").lower() == "true" else "")
+        + " — change this in the ⚙️ Settings tab."
     )
 
     if not os.environ.get("ANTHROPIC_API_KEY"):
@@ -369,12 +379,99 @@ with tab5:
                     final = create_ticket(problem_desc, progress_callback=show_progress)
                     st.divider()
                     if final.get("action") == "linked_to_existing":
-                        st.info(f"Linked as duplicate of **{final['linked_ticket_id']}**")
+                        if final.get("sink") == "both":
+                            st.info(f"Linked as duplicate of **{final['linked_ticket_id']}** in both systems")
+                            for name, r in final.get("results", {}).items():
+                                posted = r.get("comment_posted")
+                                icon = "✅" if posted is True else ("🧪" if posted == "dry_run" else "⚠️")
+                                st.caption(f"{icon} {name}: comment posted = {posted}" + (f" ({r['reason']})" if "reason" in r else ""))
+                        else:
+                            st.info(f"Linked as duplicate of **{final['linked_ticket_id']}**")
                     else:
                         st.success(f"Ticket **{final.get('ticket_id')}** created and routed to **{final.get('assignment_group')}**")
-                        if final.get("external_url"):
+                        if final.get("sink") == "both":
+                            for name, url in final.get("external_urls", {}).items():
+                                if url:
+                                    st.markdown(f"- [View in {name}]({url})")
+                                else:
+                                    st.caption(f"⚠️ {name}: {final['results'].get(name, {}).get('error', 'no URL returned')}")
+                        elif final.get("external_url"):
                             st.markdown(f"[View in {final.get('sink', 'system')}]({final['external_url']})")
                     with st.expander("Full result"):
                         st.json(final)
                 except Exception as e:
                     st.error(f"Pipeline failed: {e}")
+
+
+# ── TAB 6: Settings ──────────────────────────────────────────────────────────
+
+with tab6:
+    st.subheader("Ticket Orchestrator — Backend Configuration")
+    st.caption(
+        "Choose where Tab 5 reads existing tickets from (for duplicate checking) and writes "
+        "new ones to. Settings here apply for the rest of this session — they aren't written "
+        "back to a file, so they reset if you restart the app."
+    )
+
+    current_mode = os.environ.get("TICKET_MODE", "mock")
+    mode_keys = list(MODE_LABELS.keys())
+    selected_mode = st.selectbox(
+        "Active backend", mode_keys,
+        format_func=lambda k: MODE_LABELS[k],
+        index=mode_keys.index(current_mode) if current_mode in mode_keys else 0,
+    )
+
+    dry_run = st.checkbox(
+        "Dry run (validate payloads and log what would happen — don't actually write)",
+        value=os.environ.get("DRY_RUN", "false").lower() == "true",
+    )
+    if selected_mode != "mock" and not dry_run:
+        st.warning("Dry run is OFF — ticket creation and duplicate comments will write to the real system(s) below.")
+
+    cu_token = cu_default_list = ""
+    cu_lists = {}
+    if selected_mode in ("clickup", "both"):
+        st.markdown("#### ClickUp")
+        cu_token = st.text_input("API Token", value=os.environ.get("CLICKUP_API_TOKEN", ""), type="password", key="cu_token")
+        cu_default_list = st.text_input("Default List ID", value=os.environ.get("CLICKUP_LIST_ID_DEFAULT", ""), key="cu_default_list",
+                                         help="Used for any category without its own list ID below.")
+        with st.expander("Per-category List IDs (optional — falls back to Default List ID)"):
+            for cat, env_key in [("Application", "CLICKUP_LIST_APPLICATION"), ("Network", "CLICKUP_LIST_NETWORK"),
+                                  ("Hardware", "CLICKUP_LIST_HARDWARE"), ("Access", "CLICKUP_LIST_ACCESS"),
+                                  ("Database", "CLICKUP_LIST_DATABASE"), ("Security", "CLICKUP_LIST_SECURITY")]:
+                cu_lists[env_key] = st.text_input(cat, value=os.environ.get(env_key, ""), key=f"cu_{env_key}")
+        if st.button("Test ClickUp Connection"):
+            if not cu_token:
+                st.error("Enter an API token first.")
+            else:
+                ok, msg = test_clickup_connection(cu_token)
+                (st.success if ok else st.error)(msg)
+
+    sn_instance = sn_user = sn_pass = ""
+    if selected_mode in ("servicenow", "both"):
+        st.markdown("#### ServiceNow")
+        sn_instance = st.text_input("Instance name (without .service-now.com)", value=os.environ.get("SERVICENOW_INSTANCE", ""), key="sn_instance")
+        sn_user = st.text_input("Username", value=os.environ.get("SERVICENOW_USERNAME", ""), key="sn_user")
+        sn_pass = st.text_input("Password", value=os.environ.get("SERVICENOW_PASSWORD", ""), type="password", key="sn_pass")
+        if st.button("Test ServiceNow Connection"):
+            if not (sn_instance and sn_user and sn_pass):
+                st.error("Fill in instance, username, and password first.")
+            else:
+                ok, msg = test_servicenow_connection(sn_instance, sn_user, sn_pass)
+                (st.success if ok else st.error)(msg)
+
+    st.divider()
+    if st.button("💾 Save Configuration", type="primary"):
+        os.environ["TICKET_MODE"] = selected_mode
+        os.environ["DRY_RUN"] = "true" if dry_run else "false"
+        if selected_mode in ("clickup", "both"):
+            os.environ["CLICKUP_API_TOKEN"] = cu_token
+            os.environ["CLICKUP_LIST_ID_DEFAULT"] = cu_default_list
+            for env_key, val in cu_lists.items():
+                os.environ[env_key] = val
+        if selected_mode in ("servicenow", "both"):
+            os.environ["SERVICENOW_INSTANCE"] = sn_instance
+            os.environ["SERVICENOW_USERNAME"] = sn_user
+            os.environ["SERVICENOW_PASSWORD"] = sn_pass
+        st.success(f"Saved. Active backend: {MODE_LABELS[selected_mode]}" + (" (dry run)" if dry_run else ""))
+        st.rerun()

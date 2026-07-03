@@ -44,16 +44,27 @@ streamlit run app.py
 
 Opens automatically at `http://localhost:8501`.
 
-## Tab 5 — Ticket Orchestrator backend
+## Tab 6 — Settings (backend configuration)
 
-By default, Tab 5 runs against an in-memory mock ticketing backend — no external
-credentials needed to try it. To point it at a real ClickUp or ServiceNow instance,
-set the same environment variables documented in the
-[IT-Ticket-Orchestrator README](https://github.com/ImNorcal247/IT-Ticket-Orchestrator)
-before launching:
+Tab 5's ticketing backend is configured live from the app — no restart needed. In the
+⚙️ Settings tab, choose:
+
+- **Mock** — in-memory fake tickets, no credentials needed (default)
+- **ClickUp only**
+- **ServiceNow only**
+- **Both — dual write** — every ticket is created in ClickUp *and* ServiceNow
+  simultaneously, and duplicate checks search both systems and merge results
+
+Enter credentials directly in the Settings tab and use the **Test Connection** buttons
+to verify before saving. Settings apply for the rest of the running session; they are
+**not** written to disk, so they reset if you restart the app (this is deliberate —
+credentials never touch a file on disk this way).
+
+Equivalent environment variables, if you'd rather set them before launch instead of
+through the UI:
 
 ```bash
-export TICKET_SINK=clickup
+export TICKET_MODE=clickup        # mock | clickup | servicenow | both
 export DRY_RUN=true
 export CLICKUP_API_TOKEN="pk_..."
 export CLICKUP_LIST_ID_DEFAULT="your_list_id"
@@ -75,6 +86,17 @@ ground answers in real organizational policy instead.
   open-ended autonomous agent loop — that pattern lives in a separate investigation-agent
   project, intentionally kept out of this consolidation since it solves a different
   problem (open-ended diagnosis vs. structured classification).
+- **Dual-write mode**: when Settings is set to "Both," `MultiSink` fans every create
+  and duplicate-check call out to ClickUp and ServiceNow simultaneously and merges the
+  results. The two systems are not kept in sync afterward — closing or updating a
+  ticket in one does not propagate to the other. Dual-write only guarantees both
+  copies exist at creation time.
+- **Runtime-configurable credentials**: ClickUp's category→list mapping used to be
+  computed once at import time from environment variables, which would have silently
+  ignored any changes made later in the Settings tab. `get_category_to_list()` now
+  reads `os.environ` fresh on every call instead of caching it as a module-level
+  constant, so Settings changes take effect on the next pipeline run without restarting
+  the app.
 - **Streamlit caching**: `policy_qa.py`'s knowledge base build is wrapped in
   `@st.cache_resource` so it only runs once per session — the original standalone
   `bot.py` rebuilt it on every script execution, which is correct for a CLI tool but
