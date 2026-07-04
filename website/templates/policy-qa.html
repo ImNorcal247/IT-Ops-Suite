@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- HERO -->
+<div style="position:relative;overflow:hidden">
+  <div style="position:absolute;top:-160px;left:50%;transform:translateX(-50%);width:460px;height:420px;border-radius:50%;background:var(--violet);filter:blur(110px);opacity:0.3;pointer-events:none"></div>
+  <div class="hero-pad" style="position:relative;padding:70px 56px 50px;max-width:720px;margin:0 auto;text-align:center">
+    <div style="display:inline-block;font:600 11px var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:oklch(0.75 0.14 300);background:rgba(255,255,255,.06);border:1px solid var(--border-strong);padding:6px 14px;border-radius:20px;margin-bottom:22px">Retrieval-Augmented Generation</div>
+    <div class="hero-title" style="font:700 42px/1.16 var(--font-heading);color:var(--text);margin-bottom:18px">Policy answers, grounded in your actual documents.</div>
+    <div style="font:400 16px/1.65 var(--font-body);color:var(--text-secondary)">No made-up policy. Every answer is retrieved from your real password, incident response, and remote access documentation — with sources and a confidence rating attached.</div>
+  </div>
+</div>
+
+<!-- MOCKUP -->
+<div class="hero-pad" style="position:relative;padding:10px 56px 70px;max-width:760px;margin:0 auto">
+  <div style="border-radius:16px;background:var(--bg-sunken);border:1px solid var(--border);overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.4);padding:28px 30px">
+
+    <div style="font:500 12px var(--font-body);color:oklch(0.5 0.015 260);margin-bottom:14px">Your question:</div>
+    <div style="display:inline-block;padding:12px 18px;border-radius:10px 10px 10px 2px;background:var(--bg-input);font:500 14.5px var(--font-body);color:oklch(0.94 0.005 260);margin-bottom:22px">How long before passwords expire?</div>
+
+    <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:16px">
+      <div style="width:26px;height:26px;border-radius:50%;background:var(--violet);flex-shrink:0;margin-top:2px"></div>
+      <div style="flex:1;padding:14px 18px;border-radius:2px 10px 10px 10px;background:var(--bg-raised);border:1px solid var(--border-soft)">
+        <div style="font:400 14.5px/1.6 var(--font-body);color:oklch(0.9 0.005 260)">Per the Password Policy, passwords must be changed every 90 days. Accounts are locked after 5 consecutive failed login attempts and require IT to unlock.</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;align-items:center;padding-left:38px;flex-wrap:wrap">
+      <span style="font:400 12px var(--font-body);color:oklch(0.5 0.015 260)">Sources: Password Policy</span>
+      <span style="font:600 10.5px var(--font-body);color:var(--green);padding:3px 10px;border-radius:20px;background:rgba(120,220,170,.1);border:1px solid rgba(120,220,170,.25)">Confidence: High</span>
+    </div>
+  </div>
+
+  <div style="margin-top:18px;font:400 12px var(--font-body);color:var(--text-faint);text-align:center">Examples: "What do I do if I suspect a SEV1 incident?" · "Can I VPN in from my personal laptop?"</div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div style="position:relative;padding:60px 56px;background:var(--bg-band);border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft)">
+  <div style="max-width:900px;margin:0 auto">
+    <div style="font:600 24px var(--font-heading);color:var(--text);margin-bottom:30px;text-align:center">What's under the hood</div>
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;gap:16px;align-items:flex-start"><div style="font:600 13px var(--font-mono);color:oklch(0.75 0.14 300);min-width:22px">01</div><div style="font:400 14.5px/1.6 var(--font-body);color:oklch(0.7 0.02 260)"><strong style="color:oklch(0.92 0.005 260)">Chunked and indexed.</strong> Policy documents are split into overlapping ~500-word chunks and embedded into a ChromaDB collection, built once per session.</div></div>
+      <div style="display:flex;gap:16px;align-items:flex-start"><div style="font:600 13px var(--font-mono);color:oklch(0.75 0.14 300);min-width:22px">02</div><div style="font:400 14.5px/1.6 var(--font-body);color:oklch(0.7 0.02 260)"><strong style="color:oklch(0.92 0.005 260)">Distance-thresholded retrieval.</strong> The top 3 matching chunks are pulled back, but anything past a set similarity distance is discarded rather than passed to the model as "context."</div></div>
+      <div style="display:flex;gap:16px;align-items:flex-start"><div style="font:600 13px var(--font-mono);color:oklch(0.75 0.14 300);min-width:22px">03</div><div style="font:400 14.5px/1.6 var(--font-body);color:oklch(0.7 0.02 260)"><strong style="color:oklch(0.92 0.005 260)">Answers only from retrieved text.</strong> Claude is instructed to answer using only the retrieved chunks — if nothing confident comes back, it says so instead of guessing.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div style="position:relative;padding:70px 56px;text-align:center">
+  <div style="font:600 26px var(--font-heading);color:var(--text);margin-bottom:14px">Bring your own policy documents.</div>
+  <a href="{{ asset('Home.html') }}#request-access" class="btn btn-primary">Request Access</a>
+</div>
+
+{% endblock %}

@@ -1,0 +1,21 @@
+{% set nav_items = [
+  ("dashboard", "Ticket-Dashboard.html", "Dashboard"),
+  ("ask-data", "Ask-Your-Data.html", "Ask Your Data"),
+  ("policy-qa", "Policy-QA.html", "Policy Q&amp;A"),
+  ("classifier", "Incident-Classifier.html", "Classifier"),
+  ("orchestrator", "Ticket-Orchestrator.html", "Orchestrator"),
+] %}
+<nav class="site-nav">
+  <a href="{{ asset('Home.html') }}" style="display:flex;align-items:center;gap:9px">
+    <div style="width:9px;height:9px;border-radius:50%;background:var(--teal)"></div>
+    <span style="font:600 15px var(--font-heading);color:var(--text);letter-spacing:.2px">IT Ops Suite</span>
+  </a>
+
+  <div class="nav-links">
+    {% for key, href, label in nav_items %}
+    <a href="{{ asset(href) }}" style="font:{{ '600' if active == key else '500' }} 13px var(--font-body);color:{{ 'var(--text)' if active == key else 'var(--text-nav-inactive)' }}">{{ label|safe }}</a>
+    {% endfor %}
+  </div>
+
+  <a href="{{ asset('Home.html') }}#request-access" class="btn btn-primary cta-button" style="padding:9px 16px;font-size:12px">Request Access</a>
+</nav>

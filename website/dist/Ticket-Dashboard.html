@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ticket Dashboard · IT Ops Suite</title>
+<meta name="description" content="See every ticket, from every system, in one filterable, live-updating view.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+<div style="min-height:100vh">
+
+<nav class="site-nav">
+  <a href="Home.html" style="display:flex;align-items:center;gap:9px">
+    <div style="width:9px;height:9px;border-radius:50%;background:var(--teal)"></div>
+    <span style="font:600 15px var(--font-heading);color:var(--text);letter-spacing:.2px">IT Ops Suite</span>
+  </a>
+
+  <div class="nav-links">
+    
+    <a href="Ticket-Dashboard.html" style="font:600 13px var(--font-body);color:var(--text)">Dashboard</a>
+    
+    <a href="Ask-Your-Data.html" style="font:500 13px var(--font-body);color:var(--text-nav-inactive)">Ask Your Data</a>
+    
+    <a href="Policy-QA.html" style="font:500 13px var(--font-body);color:var(--text-nav-inactive)">Policy Q&amp;A</a>
+    
+    <a href="Incident-Classifier.html" style="font:500 13px var(--font-body);color:var(--text-nav-inactive)">Classifier</a>
+    
+    <a href="Ticket-Orchestrator.html" style="font:500 13px var(--font-body);color:var(--text-nav-inactive)">Orchestrator</a>
+    
+  </div>
+
+  <a href="Home.html#request-access" class="btn btn-primary cta-button" style="padding:9px 16px;font-size:12px">Request Access</a>
+</nav>
+
+
+<!-- HERO -->
+<div style="position:relative;overflow:hidden">
+  <div style="position:absolute;top:-160px;left:10%;width:420px;height:420px;border-radius:50%;background:var(--teal);filter:blur(110px);opacity:0.3;pointer-events:none"></div>
+  <div class="hero-pad" style="position:relative;padding:70px 56px 50px;max-width:720px;margin:0 auto;text-align:center">
+    <div style="display:inline-block;font:600 11px var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--teal);background:rgba(255,255,255,.06);border:1px solid var(--border-strong);padding:6px 14px;border-radius:20px;margin-bottom:22px">Data Consolidation &amp; Visualization</div>
+    <div class="hero-title" style="font:700 42px/1.16 var(--font-heading);color:var(--text);margin-bottom:18px">See every ticket, from every system, in one view.</div>
+    <div style="font:400 16px/1.65 var(--font-body);color:var(--text-secondary)">Tickets from every source entity land in one dashboard — filterable by entity and team, with live metrics and trend charts underneath.</div>
+  </div>
+</div>
+
+<!-- MOCKUP -->
+<div class="hero-pad" style="position:relative;padding:10px 56px 70px;max-width:1080px;margin:0 auto">
+  <div style="border-radius:16px;background:var(--bg-sunken);border:1px solid var(--border);overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.4)">
+
+    <div style="display:flex;gap:12px;padding:16px 24px;border-bottom:1px solid var(--border-soft);flex-wrap:wrap">
+      <div style="font:500 12px var(--font-body);color:oklch(0.6 0.015 260);padding:8px 14px;border-radius:7px;background:var(--bg-raised)">Source Entity: All Entities</div>
+      <div style="font:500 12px var(--font-body);color:oklch(0.6 0.015 260);padding:8px 14px;border-radius:7px;background:var(--bg-raised)">Assigned Team: All Teams</div>
+    </div>
+
+    <div class="metrics-grid">
+      <div><div style="font:600 26px var(--font-heading);color:var(--text)">1,284</div><div style="font:400 11.5px var(--font-body);color:oklch(0.55 0.015 260);margin-top:4px">Total Tickets</div></div>
+      <div><div style="font:600 26px var(--font-heading);color:var(--text)">6</div><div style="font:400 11.5px var(--font-body);color:oklch(0.55 0.015 260);margin-top:4px">Source Entities</div></div>
+      <div><div style="font:600 26px var(--font-heading);color:var(--text)">218</div><div style="font:400 11.5px var(--font-body);color:oklch(0.55 0.015 260);margin-top:4px">Open / In Progress</div></div>
+      <div><div style="font:600 26px var(--font-heading);color:var(--red)">37</div><div style="font:400 11.5px var(--font-body);color:oklch(0.55 0.015 260);margin-top:4px">Critical Priority</div></div>
+      <div><div style="font:600 26px var(--font-heading);color:var(--text)">14.2</div><div style="font:400 11.5px var(--font-body);color:oklch(0.55 0.015 260);margin-top:4px">Avg Resolution (hrs)</div></div>
+    </div>
+
+    <div class="chart-row">
+      <div>
+        <div style="font:600 12.5px var(--font-body);color:oklch(0.85 0.01 260);margin-bottom:18px">Tickets by Priority</div>
+        <div style="display:flex;align-items:flex-end;gap:20px;height:130px">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px"><div style="width:38px;height:120px;border-radius:5px 5px 0 0;background:var(--red)"></div><div style="font:500 11px var(--font-body);color:oklch(0.55 0.015 260)">Critical</div></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px"><div style="width:38px;height:88px;border-radius:5px 5px 0 0;background:var(--amber)"></div><div style="font:500 11px var(--font-body);color:oklch(0.55 0.015 260)">High</div></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px"><div style="width:38px;height:62px;border-radius:5px 5px 0 0;background:var(--blue)"></div><div style="font:500 11px var(--font-body);color:oklch(0.55 0.015 260)">Medium</div></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px"><div style="width:38px;height:40px;border-radius:5px 5px 0 0;background:var(--teal)"></div><div style="font:500 11px var(--font-body);color:oklch(0.55 0.015 260)">Low</div></div>
+        </div>
+      </div>
+      <div>
+        <div style="font:600 12.5px var(--font-body);color:oklch(0.85 0.01 260);margin-bottom:18px">Tickets by Category</div>
+        <div style="display:flex;align-items:center;gap:18px">
+          <div style="width:110px;height:110px;border-radius:50%;background:conic-gradient(var(--teal) 0turn 0.32turn, var(--cyan) 0.32turn 0.55turn, var(--violet) 0.55turn 0.75turn, var(--blue) 0.75turn 0.9turn, oklch(0.65 0.02 260) 0.9turn 1turn);-webkit-mask:radial-gradient(circle,transparent 44px,#000 45px);mask:radial-gradient(circle,transparent 44px,#000 45px)"></div>
+          <div style="display:flex;flex-direction:column;gap:8px;font:400 11.5px var(--font-body);color:oklch(0.65 0.015 260)">
+            <div style="display:flex;align-items:center;gap:7px"><div style="width:8px;height:8px;border-radius:2px;background:var(--teal)"></div>Network</div>
+            <div style="display:flex;align-items:center;gap:7px"><div style="width:8px;height:8px;border-radius:2px;background:var(--cyan)"></div>Application</div>
+            <div style="display:flex;align-items:center;gap:7px"><div style="width:8px;height:8px;border-radius:2px;background:var(--violet)"></div>Hardware</div>
+            <div style="display:flex;align-items:center;gap:7px"><div style="width:8px;height:8px;border-radius:2px;background:var(--blue)"></div>Access</div>
+            <div style="display:flex;align-items:center;gap:7px"><div style="width:8px;height:8px;border-radius:2px;background:oklch(0.65 0.02 260)"></div>Other</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div style="position:relative;padding:60px 56px;background:var(--bg-band);border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft)">
+  <div style="max-width:900px;margin:0 auto">
+    <div style="font:600 24px var(--font-heading);color:var(--text);margin-bottom:30px;text-align:center">What's under the hood</div>
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;gap:16px;align-items:flex-start"><div style="font:600 13px var(--font-mono);color:var(--teal);min-width:22px">01</div><div style="font:400 14.5px/1.6 var(--font-body);color:oklch(0.7 0.02 260)"><strong style="color:oklch(0.92 0.005 260)">Multi-entity consolidation.</strong> Every ticket carries a source_entity field, so tickets from different companies, franchises, or systems live in one table and one dashboard.</div></div>
+      <div style="display:flex;gap:16px;align-items:flex-start"><div style="font:600 13px var(--font-mono);color:var(--teal);min-width:22px">02</div><div style="font:400 14.5px/1.6 var(--font-body);color:oklch(0.7 0.02 260)"><strong style="color:oklch(0.92 0.005 260)">Cascading filters.</strong> Picking a source entity narrows the team filter to only teams active for that entity — never an empty, confusing dropdown.</div></div>
+      <div style="display:flex;gap:16px;align-items:flex-start"><div style="font:600 13px var(--font-mono);color:var(--teal);min-width:22px">03</div><div style="font:400 14.5px/1.6 var(--font-body);color:oklch(0.7 0.02 260)"><strong style="color:oklch(0.92 0.005 260)">Live, cached queries.</strong> Ticket data is read straight from SQLite and cached for 30 seconds, so charts stay current without hammering the database on every interaction.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div style="position:relative;padding:70px 56px;text-align:center">
+  <div style="font:600 26px var(--font-heading);color:var(--text);margin-bottom:14px">Want to see it against your own ticket data?</div>
+  <a href="Home.html#request-access" class="btn btn-primary">Request Access</a>
+</div>
+
+
+<footer class="site-footer">
+
+  <div style="display:flex;flex-direction:column;gap:10px;max-width:320px">
+    <div style="display:flex;align-items:center;gap:9px">
+      <div style="width:9px;height:9px;border-radius:50%;background:var(--teal)"></div>
+      <span style="font:600 14px var(--font-heading);color:var(--text)">IT Ops Suite</span>
+    </div>
+    <div style="font:400 12.5px/1.6 var(--font-body);color:var(--text-muted)">An AI-engineering capstone consolidating four independent projects into one operations tool.</div>
+  </div>
+
+  <div class="footer-links">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 11px var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:oklch(0.5 0.015 260)">Capabilities</div>
+      <a href="Ticket-Dashboard.html" style="font:400 13px var(--font-body);color:var(--text-secondary)">Ticket Dashboard</a>
+      <a href="Ask-Your-Data.html" style="font:400 13px var(--font-body);color:var(--text-secondary)">Ask Your Data</a>
+      <a href="Policy-QA.html" style="font:400 13px var(--font-body);color:var(--text-secondary)">Policy Q&amp;A</a>
+      <a href="Incident-Classifier.html" style="font:400 13px var(--font-body);color:var(--text-secondary)">Incident Classifier</a>
+      <a href="Ticket-Orchestrator.html" style="font:400 13px var(--font-body);color:var(--text-secondary)">Ticket Orchestrator</a>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 11px var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:oklch(0.5 0.015 260)">Project</div>
+      <a href="https://github.com/ImNorcal247/IT-Ops-Suite" style="font:400 13px var(--font-body);color:var(--text-secondary)">GitHub repository</a>
+      <a href="Home.html#request-access" style="font:400 13px var(--font-body);color:var(--text-secondary)">Request access</a>
+    </div>
+  </div>
+</footer>
+</div>
+</body>
+</html>

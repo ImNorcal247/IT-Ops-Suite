@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IT operations, running on autopilot · IT Ops Suite</title>
+<meta name="description" content="AI-powered IT operations suite: ticket dashboard, text-to-SQL, policy Q&A, incident classification, and multi-agent ticket routing.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+<div style="min-height:100vh">
+
+<nav class="site-nav">
+  <a href="Home.html" style="display:flex;align-items:center;gap:9px">
+    <div style="width:9px;height:9px;border-radius:50%;background:var(--teal)"></div>
+    <span style="font:600 15px var(--font-heading);color:var(--text);letter-spacing:.2px">IT Ops Suite</span>
+  </a>
+
+  <div class="nav-links">
+    
+    <a href="Ticket-Dashboard.html" style="font:500 13px var(--font-body);color:var(--text-nav-inactive)">Dashboard</a>
+    
+    <a href="Ask-Your-Data.html" style="font:500 13px var(--font-body);color:var(--text-nav-inactive)">Ask Your Data</a>
+    
+    <a href="Policy-QA.html" style="font:500 13px var(--font-body);color:var(--text-nav-inactive)">Policy Q&amp;A</a>
+    
+    <a href="Incident-Classifier.html" style="font:500 13px var(--font-body);color:var(--text-nav-inactive)">Classifier</a>
+    
+    <a href="Ticket-Orchestrator.html" style="font:500 13px var(--font-body);color:var(--text-nav-inactive)">Orchestrator</a>
+    
+  </div>
+
+  <a href="Home.html#request-access" class="btn btn-primary cta-button" style="padding:9px 16px;font-size:12px">Request Access</a>
+</nav>
+
+
+<!-- HERO -->
+<div style="position:relative;overflow:hidden">
+  <div style="position:absolute;top:-160px;left:60px;width:460px;height:460px;border-radius:50%;background:var(--blue);filter:blur(110px);opacity:0.32;pointer-events:none"></div>
+  <div style="position:absolute;top:20px;right:-140px;width:400px;height:400px;border-radius:50%;background:var(--teal);filter:blur(110px);opacity:0.28;pointer-events:none"></div>
+  <div style="position:absolute;bottom:-220px;left:280px;width:440px;height:440px;border-radius:50%;background:var(--violet);filter:blur(120px);opacity:0.24;pointer-events:none"></div>
+
+  <div class="hero-pad" style="position:relative;padding:90px 56px 60px;max-width:680px;margin:0 auto;text-align:center">
+    <div style="display:inline-block;font:500 11px var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:oklch(0.85 0.09 220);background:rgba(255,255,255,.06);border:1px solid var(--border-strong);padding:6px 14px;border-radius:20px;margin-bottom:22px">AI-powered IT operations</div>
+    <div class="hero-title" style="font:700 48px/1.14 var(--font-heading);color:var(--text);margin-bottom:20px">IT operations, running on autopilot.</div>
+    <div style="font:400 17px/1.65 var(--font-body);color:var(--text-secondary);margin-bottom:30px">Triage incidents, answer policy questions, and route tickets — automatically. One AI suite that gives your help desk its time back.</div>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="#request-access" class="btn btn-primary">Request Access</a>
+      <a href="Ticket-Dashboard.html" class="btn btn-secondary">See it in action</a>
+    </div>
+  </div>
+</div>
+
+<!-- CAPABILITY GRID -->
+<div class="hero-pad" style="position:relative;padding:20px 56px 90px;max-width:1180px;margin:0 auto">
+  <div style="text-align:center;margin-bottom:44px">
+    <div style="font:600 11px var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:10px">Five tools, one interface</div>
+    <div style="font:600 30px var(--font-heading);color:var(--text)">Everything your help desk touches, in one place</div>
+  </div>
+
+  <div class="capability-grid">
+
+    <a href="Ticket-Dashboard.html" class="capability-card">
+      <div style="width:38px;height:38px;border-radius:11px;background:var(--teal);color:var(--bg);font:600 12px var(--font-body);display:flex;align-items:center;justify-content:center">TD</div>
+      <div style="font:600 16px var(--font-heading);color:var(--text)">Ticket Dashboard</div>
+      <div style="font:400 13.5px/1.55 var(--font-body);color:var(--text-nav-inactive)">See every ticket, from every source system, in one live view — filterable by entity and team.</div>
+      <div style="font:500 11px var(--font-mono);color:oklch(0.72 0.11 195);margin-top:auto">DATA CONSOLIDATION</div>
+    </a>
+
+    <a href="Ask-Your-Data.html" class="capability-card">
+      <div style="width:38px;height:38px;border-radius:11px;background:var(--cyan);color:var(--bg);font:600 12px var(--font-body);display:flex;align-items:center;justify-content:center">AI</div>
+      <div style="font:600 16px var(--font-heading);color:var(--text)">Ask Your Data</div>
+      <div style="font:400 13.5px/1.55 var(--font-body);color:var(--text-nav-inactive)">Ask a plain-English question about your tickets and get a straight answer — no SQL required.</div>
+      <div style="font:500 11px var(--font-mono);color:oklch(0.75 0.1 210);margin-top:auto">TEXT-TO-SQL</div>
+    </a>
+
+    <a href="Policy-QA.html" class="capability-card">
+      <div style="width:38px;height:38px;border-radius:11px;background:var(--violet);color:var(--bg);font:600 12px var(--font-body);display:flex;align-items:center;justify-content:center">PQ</div>
+      <div style="font:600 16px var(--font-heading);color:var(--text)">Policy Q&amp;A</div>
+      <div style="font:400 13.5px/1.55 var(--font-body);color:var(--text-nav-inactive)">Answers grounded only in your actual IT policy documents — with sources and a confidence rating.</div>
+      <div style="font:500 11px var(--font-mono);color:oklch(0.7 0.13 300);margin-top:auto">RETRIEVAL-AUGMENTED GENERATION</div>
+    </a>
+
+    <a href="Incident-Classifier.html" class="capability-card">
+      <div style="width:38px;height:38px;border-radius:11px;background:var(--blue);color:var(--bg);font:600 12px var(--font-body);display:flex;align-items:center;justify-content:center">IC</div>
+      <div style="font:600 16px var(--font-heading);color:var(--text)">Incident Classifier</div>
+      <div style="font:400 13.5px/1.55 var(--font-body);color:var(--text-nav-inactive)">Instant triage: category, priority, owning team, and the first three things to check.</div>
+      <div style="font:500 11px var(--font-mono);color:oklch(0.7 0.12 250);margin-top:auto">STRUCTURED OUTPUT</div>
+    </a>
+
+    <a href="Ticket-Orchestrator.html" class="capability-card">
+      <div style="width:38px;height:38px;border-radius:11px;background:var(--teal);color:var(--bg);font:600 12px var(--font-body);display:flex;align-items:center;justify-content:center">TO</div>
+      <div style="font:600 16px var(--font-heading);color:var(--text)">Ticket Orchestrator</div>
+      <div style="font:400 13.5px/1.55 var(--font-body);color:var(--text-nav-inactive)">Submit a problem in one line — it's triaged, checked for duplicates, routed, and filed automatically.</div>
+      <div style="font:500 11px var(--font-mono);color:oklch(0.72 0.11 195);margin-top:auto">MULTI-AGENT ORCHESTRATION</div>
+    </a>
+
+    <div style="display:flex;flex-direction:column;justify-content:center;gap:10px;padding:26px;border-radius:14px;background:transparent;border:1px dashed var(--border-dashed)">
+      <div style="font:600 15px var(--font-heading);color:oklch(0.9 0.005 260)">Built as a 30-day capstone</div>
+      <div style="font:400 13.5px/1.55 var(--font-body);color:var(--text-muted)">Four standalone AI-engineering projects, consolidated into one shippable tool.</div>
+      <a href="https://github.com/ImNorcal247/IT-Ops-Suite" style="font:600 12.5px var(--font-body);color:oklch(0.8 0.11 195);text-decoration:none">View source on GitHub →</a>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div style="position:relative;padding:70px 56px;background:var(--bg-band);border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft)">
+  <div style="max-width:1100px;margin:0 auto">
+    <div style="text-align:center;font:600 30px var(--font-heading);color:var(--text);margin-bottom:48px">Three AI patterns, applied where they fit</div>
+    <div class="patterns-row">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="font:600 12px var(--font-mono);color:var(--blue)">01</div>
+        <div style="font:600 17px var(--font-heading);color:oklch(0.95 0.005 260)">Grounded in real data</div>
+        <div style="font:400 14px/1.6 var(--font-body);color:oklch(0.65 0.02 260)">RAG over your actual policy documents, and text-to-SQL over your live ticket database — answers only come from what's really there.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="font:600 12px var(--font-mono);color:var(--teal)">02</div>
+        <div style="font:600 17px var(--font-heading);color:oklch(0.95 0.005 260)">Structured, not guesswork</div>
+        <div style="font:400 14px/1.6 var(--font-body);color:oklch(0.65 0.02 260)">Few-shot classification forces every incident into consistent fields — category, priority, team, and next actions — every time.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="font:600 12px var(--font-mono);color:var(--violet)">03</div>
+        <div style="font:600 17px var(--font-heading);color:oklch(0.95 0.005 260)">Deterministic where it counts</div>
+        <div style="font:400 14px/1.6 var(--font-body);color:oklch(0.65 0.02 260)">Ticket routing runs a fixed triage → dedup → assign → create sequence — not an open-ended agent loop — because routing is a business process with a correct order.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TECH STRIP -->
+<div style="padding:44px 56px;text-align:center">
+  <div style="font:500 11px var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:oklch(0.5 0.015 260);margin-bottom:18px">Built with</div>
+  <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+    
+    <span style="font:500 13px var(--font-mono);color:var(--text-secondary);padding:8px 16px;border-radius:20px;background:var(--bg-raised);border:1px solid var(--border-soft)">Claude Opus & Haiku</span>
+    
+    <span style="font:500 13px var(--font-mono);color:var(--text-secondary);padding:8px 16px;border-radius:20px;background:var(--bg-raised);border:1px solid var(--border-soft)">ChromaDB</span>
+    
+    <span style="font:500 13px var(--font-mono);color:var(--text-secondary);padding:8px 16px;border-radius:20px;background:var(--bg-raised);border:1px solid var(--border-soft)">SQLite</span>
+    
+    <span style="font:500 13px var(--font-mono);color:var(--text-secondary);padding:8px 16px;border-radius:20px;background:var(--bg-raised);border:1px solid var(--border-soft)">Streamlit</span>
+    
+    <span style="font:500 13px var(--font-mono);color:var(--text-secondary);padding:8px 16px;border-radius:20px;background:var(--bg-raised);border:1px solid var(--border-soft)">ClickUp</span>
+    
+    <span style="font:500 13px var(--font-mono);color:var(--text-secondary);padding:8px 16px;border-radius:20px;background:var(--bg-raised);border:1px solid var(--border-soft)">ServiceNow</span>
+    
+  </div>
+</div>
+
+<!-- REQUEST ACCESS -->
+<div id="request-access" style="position:relative;padding:80px 56px;text-align:center;overflow:hidden">
+  <div style="position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:520px;height:300px;border-radius:50%;background:var(--blue);filter:blur(120px);opacity:0.22;pointer-events:none"></div>
+  <div style="position:relative;max-width:560px;margin:0 auto">
+    <div style="font:600 30px var(--font-heading);color:var(--text);margin-bottom:16px">Interested in a walkthrough?</div>
+    <div style="font:400 15px/1.6 var(--font-body);color:var(--text-nav-inactive);margin-bottom:30px">Happy to walk through the architecture, the prompts, or the code behind any of the five tabs.</div>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="mailto:nickpwaller@gmail.com" class="btn btn-primary">Request Access</a>
+      <a href="https://github.com/ImNorcal247/IT-Ops-Suite" class="btn btn-secondary">View on GitHub</a>
+    </div>
+  </div>
+</div>
+
+
+<footer class="site-footer">
+
+  <div style="display:flex;flex-direction:column;gap:10px;max-width:320px">
+    <div style="display:flex;align-items:center;gap:9px">
+      <div style="width:9px;height:9px;border-radius:50%;background:var(--teal)"></div>
+      <span style="font:600 14px var(--font-heading);color:var(--text)">IT Ops Suite</span>
+    </div>
+    <div style="font:400 12.5px/1.6 var(--font-body);color:var(--text-muted)">An AI-engineering capstone consolidating four independent projects into one operations tool.</div>
+  </div>
+
+  <div class="footer-links">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 11px var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:oklch(0.5 0.015 260)">Capabilities</div>
+      <a href="Ticket-Dashboard.html" style="font:400 13px var(--font-body);color:var(--text-secondary)">Ticket Dashboard</a>
+      <a href="Ask-Your-Data.html" style="font:400 13px var(--font-body);color:var(--text-secondary)">Ask Your Data</a>
+      <a href="Policy-QA.html" style="font:400 13px var(--font-body);color:var(--text-secondary)">Policy Q&amp;A</a>
+      <a href="Incident-Classifier.html" style="font:400 13px var(--font-body);color:var(--text-secondary)">Incident Classifier</a>
+      <a href="Ticket-Orchestrator.html" style="font:400 13px var(--font-body);color:var(--text-secondary)">Ticket Orchestrator</a>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 11px var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:oklch(0.5 0.015 260)">Project</div>
+      <a href="https://github.com/ImNorcal247/IT-Ops-Suite" style="font:400 13px var(--font-body);color:var(--text-secondary)">GitHub repository</a>
+      <a href="Home.html#request-access" style="font:400 13px var(--font-body);color:var(--text-secondary)">Request access</a>
+    </div>
+  </div>
+</footer>
+</div>
+</body>
+</html>

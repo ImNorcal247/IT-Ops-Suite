@@ -1,0 +1,174 @@
+/* IT Ops Suite — marketing site
+   Design tokens ported from the Claude Design handoff
+   (Repository website setup/design_handoff_it_ops_suite_website/README.md) */
+
+:root {
+  --bg: oklch(0.15 0.02 260);
+  --bg-raised: oklch(0.19 0.02 260);
+  --bg-sunken: oklch(0.12 0.015 260);
+  --bg-band: oklch(0.13 0.018 260);
+  --bg-input: oklch(0.22 0.02 260);
+  --bg-deep: oklch(0.1 0.012 260);
+
+  --text: oklch(0.97 0.005 260);
+  --text-secondary: oklch(0.72 0.02 260);
+  --text-muted: oklch(0.55 0.015 260);
+  --text-faint: oklch(0.45 0.012 260);
+  --text-nav-inactive: oklch(0.68 0.02 260);
+
+  --border-soft: rgba(255, 255, 255, 0.06);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.12);
+  --border-dashed: rgba(255, 255, 255, 0.14);
+
+  --teal: oklch(0.75 0.13 195);
+  --cyan: oklch(0.8 0.12 210);
+  --blue: oklch(0.72 0.15 250);
+  --violet: oklch(0.72 0.16 300);
+  --red: oklch(0.62 0.19 25);
+  --amber: oklch(0.75 0.15 60);
+  --green: oklch(0.7 0.13 150);
+
+  --font-heading: "Sora", sans-serif;
+  --font-body: "IBM Plex Sans", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  font-family: var(--font-body);
+  color: var(--text);
+}
+
+a { color: inherit; }
+
+/* ── Nav ─────────────────────────────────────────────────────────────── */
+
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 20px 56px;
+  background: oklch(0.15 0.02 260 / 0.72);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+
+.site-nav .nav-links { display: flex; gap: 28px; }
+
+.site-nav a { text-decoration: none; transition: color 0.15s ease, opacity 0.15s ease; }
+.site-nav .nav-links a:hover { color: var(--text) !important; }
+.site-nav .cta-button:hover { opacity: 0.88; }
+
+/* ── Buttons / links ─────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-block;
+  font: 600 14px var(--font-body);
+  padding: 13px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.btn:hover { opacity: 0.88; }
+.btn-primary { background: var(--teal); color: var(--bg); }
+.btn-secondary { border: 1px solid var(--border-strong); color: var(--text); }
+
+/* ── Capability grid (Home) ──────────────────────────────────────────── */
+
+.capability-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.capability-card {
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 26px;
+  border-radius: 14px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-soft);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.capability-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+
+/* ── Dashboard mockup grids ──────────────────────────────────────────── */
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1px;
+  background: var(--border);
+}
+.metrics-grid > div { background: var(--bg-sunken); padding: 20px 22px; }
+
+.chart-row {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 1px;
+  background: var(--border);
+}
+.chart-row > div { background: var(--bg-sunken); padding: 26px 28px; }
+
+/* ── "How it works" 3-column row ─────────────────────────────────────── */
+
+.patterns-row,
+.how-it-works-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────── */
+
+.site-footer {
+  position: relative;
+  padding: 48px 56px 40px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 32px;
+  background: var(--bg);
+}
+.site-footer .footer-links { display: flex; gap: 56px; flex-wrap: wrap; }
+.site-footer a { text-decoration: none; transition: color 0.15s ease; }
+.site-footer a:hover { color: var(--text-secondary) !important; }
+
+/* ── Responsive ──────────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .site-nav { padding: 16px 24px; }
+  .site-nav .nav-links { gap: 16px; }
+  .capability-grid { grid-template-columns: repeat(2, 1fr); }
+  .patterns-row,
+  .how-it-works-row { grid-template-columns: 1fr; gap: 20px; }
+  .chart-row { grid-template-columns: 1fr; }
+  .hero-title { font-size: 34px !important; }
+  .hero-pad { padding-left: 24px !important; padding-right: 24px !important; }
+}
+
+@media (max-width: 760px) {
+  .site-nav .nav-links { display: none; }
+  .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .site-footer { padding: 40px 24px 32px; }
+}
+
+@media (max-width: 600px) {
+  .capability-grid { grid-template-columns: 1fr; }
+}

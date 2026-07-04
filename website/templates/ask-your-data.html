@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- HERO -->
+<div style="position:relative;overflow:hidden">
+  <div style="position:absolute;top:-160px;right:10%;width:420px;height:420px;border-radius:50%;background:var(--cyan);filter:blur(110px);opacity:0.3;pointer-events:none"></div>
+  <div class="hero-pad" style="position:relative;padding:70px 56px 50px;max-width:720px;margin:0 auto;text-align:center">
+    <div style="display:inline-block;font:600 11px var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);background:rgba(255,255,255,.06);border:1px solid var(--border-strong);padding:6px 14px;border-radius:20px;margin-bottom:22px">Text-to-SQL</div>
+    <div class="hero-title" style="font:700 42px/1.16 var(--font-heading);color:var(--text);margin-bottom:18px">Ask a question. Get an answer — no SQL required.</div>
+    <div style="font:400 16px/1.65 var(--font-body);color:var(--text-secondary)">Type a question about your ticket data in plain English. Claude writes the query, runs it, and reads back the result — never the raw SQL, unless you want to see it.</div>
+  </div>
+</div>
+
+<!-- MOCKUP -->
+<div class="hero-pad" style="position:relative;padding:10px 56px 70px;max-width:760px;margin:0 auto">
+  <div style="border-radius:16px;background:var(--bg-sunken);border:1px solid var(--border);overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.4);padding:28px 30px">
+
+    <div style="font:500 12px var(--font-body);color:oklch(0.5 0.015 260);margin-bottom:14px">Your question:</div>
+    <div style="display:inline-block;padding:12px 18px;border-radius:10px 10px 10px 2px;background:var(--bg-input);font:500 14.5px var(--font-body);color:oklch(0.94 0.005 260);margin-bottom:22px">Which team has the most open tickets?</div>
+
+    <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:14px">
+      <div style="width:26px;height:26px;border-radius:50%;background:var(--cyan);flex-shrink:0;margin-top:2px"></div>
+      <div style="flex:1;padding:14px 18px;border-radius:2px 10px 10px 10px;background:var(--bg-raised);border:1px solid var(--border-soft)">
+        <div style="font:400 14.5px/1.6 var(--font-body);color:oklch(0.9 0.005 260)">Network Operations has the most open tickets right now — 42 unresolved, well ahead of Desktop Support in second place with 27.</div>
+      </div>
+    </div>
+
+    <div style="padding:12px 16px;border-radius:8px;background:var(--bg-deep);border:1px solid var(--border-soft);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
+      <span style="font:500 11.5px var(--font-body);color:oklch(0.5 0.015 260)">▸ Show generated SQL and raw results</span>
+      <span style="font:400 11px var(--font-mono);color:var(--text-faint)">SELECT assigned_team, COUNT(*) …</span>
+    </div>
+  </div>
+
+  <div style="margin-top:18px;font:400 12px var(--font-body);color:var(--text-faint);text-align:center">Examples: "How many critical tickets are still open?" · "Avg resolution time for Network tickets?"</div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div style="position:relative;padding:60px 56px;background:var(--bg-band);border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft)">
+  <div style="max-width:900px;margin:0 auto">
+    <div style="font:600 24px var(--font-heading);color:var(--text);margin-bottom:30px;text-align:center">What's under the hood</div>
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;gap:16px;align-items:flex-start"><div style="font:600 13px var(--font-mono);color:var(--cyan);min-width:22px">01</div><div style="font:400 14.5px/1.6 var(--font-body);color:oklch(0.7 0.02 260)"><strong style="color:oklch(0.92 0.005 260)">Schema-aware generation.</strong> Claude Haiku is given the actual column names and real distinct values in your ticket table, then converts the question into a single SQLite query.</div></div>
+      <div style="display:flex;gap:16px;align-items:flex-start"><div style="font:600 13px var(--font-mono);color:var(--cyan);min-width:22px">02</div><div style="font:400 14.5px/1.6 var(--font-body);color:oklch(0.7 0.02 260)"><strong style="color:oklch(0.92 0.005 260)">Safety-checked before it runs.</strong> Only SELECT statements are allowed — anything containing DROP, DELETE, UPDATE, INSERT, ALTER, or similar is blocked outright.</div></div>
+      <div style="display:flex;gap:16px;align-items:flex-start"><div style="font:600 13px var(--font-mono);color:var(--cyan);min-width:22px">03</div><div style="font:400 14.5px/1.6 var(--font-body);color:oklch(0.7 0.02 260)"><strong style="color:oklch(0.92 0.005 260)">Read back in plain English.</strong> Raw query results are handed to Claude a second time to produce a concise, natural-language answer — the SQL stays available, but tucked behind an expander.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div style="position:relative;padding:70px 56px;text-align:center">
+  <div style="font:600 26px var(--font-heading);color:var(--text);margin-bottom:14px">Try it against your own questions.</div>
+  <a href="{{ asset('Home.html') }}#request-access" class="btn btn-primary">Request Access</a>
+</div>
+
+{% endblock %}

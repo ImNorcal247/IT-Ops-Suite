@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- HERO -->
+<div style="position:relative;overflow:hidden">
+  <div style="position:absolute;top:-160px;left:10%;width:420px;height:420px;border-radius:50%;background:var(--teal);filter:blur(110px);opacity:0.3;pointer-events:none"></div>
+  <div class="hero-pad" style="position:relative;padding:70px 56px 50px;max-width:720px;margin:0 auto;text-align:center">
+    <div style="display:inline-block;font:600 11px var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--teal);background:rgba(255,255,255,.06);border:1px solid var(--border-strong);padding:6px 14px;border-radius:20px;margin-bottom:22px">Multi-Agent Orchestration</div>
+    <div class="hero-title" style="font:700 42px/1.16 var(--font-heading);color:var(--text);margin-bottom:18px">Submit a problem. Watch it get filed.</div>
+    <div style="font:400 16px/1.65 var(--font-body);color:var(--text-secondary)">One sentence in, one filed ticket out — triaged, checked against existing tickets for duplicates, routed to the right team, and created in ClickUp or ServiceNow.</div>
+  </div>
+</div>
+
+<!-- MOCKUP -->
+<div class="hero-pad" style="position:relative;padding:10px 56px 70px;max-width:760px;margin:0 auto">
+  <div style="border-radius:16px;background:var(--bg-sunken);border:1px solid var(--border);overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.4);padding:28px 30px">
+
+    <div style="font:500 12px var(--font-body);color:oklch(0.5 0.015 260);margin-bottom:10px">Describe the problem:</div>
+    <div style="padding:12px 16px;border-radius:8px;background:var(--bg-raised);border:1px solid var(--border-soft);font:400 14px var(--font-body);color:oklch(0.85 0.005 260);margin-bottom:24px">My laptop screen is flickering and sometimes goes completely black.</div>
+
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:22px">
+      <div style="display:flex;gap:10px;align-items:center;font:400 13.5px var(--font-body);color:oklch(0.85 0.005 260)"><span style="color:var(--green)">✅</span> <strong style="color:oklch(0.95 0.005 260)">Triage</strong> → Hardware / Display &amp; Monitor · P3</div>
+      <div style="display:flex;gap:10px;align-items:center;font:400 13.5px var(--font-body);color:oklch(0.85 0.005 260)"><span style="color:var(--green)">✅</span> <strong style="color:oklch(0.95 0.005 260)">Duplicate check</strong> → duplicate = false</div>
+      <div style="display:flex;gap:10px;align-items:center;font:400 13.5px var(--font-body);color:oklch(0.85 0.005 260)"><span style="color:var(--green)">✅</span> <strong style="color:oklch(0.95 0.005 260)">Assignment</strong> → Desktop Support</div>
+      <div style="display:flex;gap:10px;align-items:center;font:400 13.5px var(--font-body);color:oklch(0.85 0.005 260)"><span style="color:var(--green)">✅</span> <strong style="color:oklch(0.95 0.005 260)">Ticket created</strong> → INC-142207</div>
+    </div>
+
+    <div style="padding:14px 18px;border-radius:10px;background:var(--bg-raised);border:1px solid var(--border-soft);font:500 13.5px var(--font-body);color:oklch(0.9 0.005 260)">Ticket <strong>INC-142207</strong> created and routed to <strong>Desktop Support</strong></div>
+  </div>
+
+  <div style="margin-top:20px;padding:16px 20px;border-radius:12px;background:var(--bg-band);border:1px dashed var(--border-strong);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+    <div style="font:500 12.5px var(--font-body);color:oklch(0.6 0.015 260)">Backend (configured live, no restart):</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span style="font:500 11.5px var(--font-mono);padding:5px 11px;border-radius:16px;background:var(--bg-input);color:oklch(0.6 0.015 260)">Mock</span>
+      <span style="font:500 11.5px var(--font-mono);padding:5px 11px;border-radius:16px;background:var(--teal);color:var(--bg)">ClickUp</span>
+      <span style="font:500 11.5px var(--font-mono);padding:5px 11px;border-radius:16px;background:var(--bg-input);color:oklch(0.6 0.015 260)">ServiceNow</span>
+      <span style="font:500 11.5px var(--font-mono);padding:5px 11px;border-radius:16px;background:var(--bg-input);color:oklch(0.6 0.015 260)">Both — dual write</span>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div style="position:relative;padding:60px 56px;background:var(--bg-band);border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft)">
+  <div style="max-width:900px;margin:0 auto">
+    <div style="font:600 24px var(--font-heading);color:var(--text);margin-bottom:30px;text-align:center">What's under the hood</div>
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;gap:16px;align-items:flex-start"><div style="font:600 13px var(--font-mono);color:var(--teal);min-width:22px">01</div><div style="font:400 14.5px/1.6 var(--font-body);color:oklch(0.7 0.02 260)"><strong style="color:oklch(0.92 0.005 260)">A fixed sequence, not an open-ended agent.</strong> Triage → duplicate check → assignment → create runs in a deterministic order using forced single-tool calls at each stage, because ticket routing is a business process with a correct order — this deliberately isn't an autonomous agent loop.</div></div>
+      <div style="display:flex;gap:16px;align-items:flex-start"><div style="font:600 13px var(--font-mono);color:var(--teal);min-width:22px">02</div><div style="font:400 14.5px/1.6 var(--font-body);color:oklch(0.7 0.02 260)"><strong style="color:oklch(0.92 0.005 260)">Live duplicate detection.</strong> Before creating anything, the duplicate-check stage searches existing open tickets in the real backend and only flags a match when it's clearly the same underlying issue.</div></div>
+      <div style="display:flex;gap:16px;align-items:flex-start"><div style="font:600 13px var(--font-mono);color:var(--teal);min-width:22px">03</div><div style="font:400 14.5px/1.6 var(--font-body);color:oklch(0.7 0.02 260)"><strong style="color:oklch(0.92 0.005 260)">Switchable backend, zero downtime.</strong> Settings lets you point the pipeline at a mock store, ClickUp, ServiceNow, or both at once — dual-write fans every create and dedup check out to both systems and merges the results.</div></div>
+      <div style="display:flex;gap:16px;align-items:flex-start"><div style="font:600 13px var(--font-mono);color:var(--teal);min-width:22px">04</div><div style="font:400 14.5px/1.6 var(--font-body);color:oklch(0.7 0.02 260)"><strong style="color:oklch(0.92 0.005 260)">Credentials never touch disk.</strong> API tokens entered in Settings live only for the running session — restarting the app clears them, by design.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div style="position:relative;padding:70px 56px;text-align:center">
+  <div style="font:600 26px var(--font-heading);color:var(--text);margin-bottom:14px">See it wired into your own ticketing system.</div>
+  <a href="{{ asset('Home.html') }}#request-access" class="btn btn-primary">Request Access</a>
+</div>
+
+{% endblock %}
