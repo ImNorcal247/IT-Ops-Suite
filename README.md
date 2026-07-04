@@ -5,6 +5,11 @@ projects into one tool: multi-entity ticket analytics, text-to-SQL, RAG-powered 
 Q&A, few-shot incident classification, and a multi-agent ticket orchestrator. Built as
 the capstone of a 30-day applied AI engineering practice.
 
+> **For portfolio and reference purposes only** — not intended for commercial
+> sale or production deployment as-is. It demonstrates what's achievable
+> building in-house AI tooling for IT operations, whether for a homegrown
+> stack or an enterprise environment.
+
 The suite now ships in two forms:
 
 | | What it is | Who it's for |
