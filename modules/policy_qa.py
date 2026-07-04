@@ -2,15 +2,15 @@
 modules/policy_qa.py
 
 RAG-powered IT policy Q&A, adapted from the standalone it-policy-qa-bot
-repo (https://github.com/ImNorcal247/it-policy-qa-bot) for use inside a
-Streamlit tab.
+repo (https://github.com/ImNorcal247/it-policy-qa-bot).
 
 The only real change from the original bot.py: the original created a
 fresh in-memory ChromaDB client and collection every time the script ran
-top-to-bottom, which is fine for a CLI tool but breaks in Streamlit,
-where the whole script reruns on every interaction. Here the knowledge
-base build is wrapped in @st.cache_resource so it only happens once per
-session, not once per click.
+top-to-bottom, which is fine for a CLI tool but wasteful under a
+long-running server. build_knowledge_base() is a plain function here —
+callers (Streamlit, FastAPI) are responsible for calling it once and
+caching/reusing the returned collection rather than rebuilding it per
+request.
 """
 
 import os
@@ -18,7 +18,6 @@ from pathlib import Path
 
 import anthropic
 import chromadb
-import streamlit as st
 
 DOCS_FOLDER = Path(__file__).parent.parent / "docs" / "policies"
 
@@ -50,9 +49,9 @@ def _chunk_document(text, filename, chunk_size=500, overlap=50):
     return chunks, ids, metadatas
 
 
-@st.cache_resource(show_spinner="Building policy knowledge base...")
 def build_knowledge_base():
-    """Runs once per Streamlit session (cache_resource), not once per click."""
+    """Callers should call this once (e.g. at process/session startup) and
+    reuse the returned collection rather than rebuilding it per request."""
     documents, filenames = _load_documents()
     if not documents:
         return None, 0

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div id="example-chips" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px"></div>
+
+<div style="display:flex;gap:10px;margin-bottom:26px">
+  <input type="text" id="question-input" class="input" placeholder="e.g. Which team has the most open tickets?" />
+  <button id="ask-btn" class="btn" style="background:var(--cyan)">Ask</button>
+</div>
+
+<div id="result"></div>
+
+{% endblock %}
+{% block extra_js %}
+<script src="/static/ask_data.js"></script>
+{% endblock %}

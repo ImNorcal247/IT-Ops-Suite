@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in · IT Ops Suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>body{margin:0;background:oklch(0.15 0.02 260)}</style>
+</head>
+<body>
+
+<div style="min-height:100vh;background:oklch(0.15 0.02 260);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden">
+  <div style="position:absolute;top:-180px;left:10%;width:440px;height:440px;border-radius:50%;background:oklch(0.72 0.15 250);filter:blur(120px);opacity:0.26;pointer-events:none"></div>
+  <div style="position:absolute;bottom:-200px;right:10%;width:420px;height:420px;border-radius:50%;background:oklch(0.75 0.13 195);filter:blur(120px);opacity:0.22;pointer-events:none"></div>
+
+  <div style="position:relative;width:400px;max-width:90vw;background:oklch(0.19 0.02 260);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:36px 34px;box-shadow:0 30px 80px rgba(0,0,0,.45)">
+
+    <div style="display:flex;align-items:center;gap:9px;margin-bottom:30px">
+      <div style="width:9px;height:9px;border-radius:50%;background:oklch(0.75 0.13 195)"></div>
+      <span style="font:600 15px 'Sora',sans-serif;color:oklch(0.97 0.005 260)">IT Ops Suite</span>
+    </div>
+
+    <div style="font:600 22px 'Sora',sans-serif;color:oklch(0.97 0.005 260);margin-bottom:8px">Sign in</div>
+    <div style="font:400 13.5px/1.5 'IBM Plex Sans',sans-serif;color:oklch(0.62 0.015 260);margin-bottom:26px">Use your operator credentials to access the console.</div>
+
+    {% if error %}
+    <div style="padding:11px 14px;border-radius:8px;background:rgba(230,90,70,.1);border:1px solid rgba(230,90,70,.25);color:oklch(0.75 0.16 25);font:400 13px 'IBM Plex Sans',sans-serif;margin-bottom:16px">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" action="/login" style="display:flex;flex-direction:column;gap:16px">
+      <div>
+        <div style="font:500 12px 'IBM Plex Sans',sans-serif;color:oklch(0.7 0.02 260);margin-bottom:7px">Email</div>
+        <input type="email" name="email" required placeholder="you@company.com" style="width:100%;box-sizing:border-box;padding:11px 14px;border-radius:8px;background:oklch(0.15 0.02 260);border:1px solid rgba(255,255,255,.1);color:oklch(0.94 0.005 260);font:400 14px 'IBM Plex Sans',sans-serif;outline:none" />
+      </div>
+      <div>
+        <div style="font:500 12px 'IBM Plex Sans',sans-serif;color:oklch(0.7 0.02 260);margin-bottom:7px">Password</div>
+        <input type="password" name="password" required placeholder="••••••••••••" style="width:100%;box-sizing:border-box;padding:11px 14px;border-radius:8px;background:oklch(0.15 0.02 260);border:1px solid rgba(255,255,255,.1);color:oklch(0.94 0.005 260);font:400 14px 'IBM Plex Sans',sans-serif;outline:none" />
+      </div>
+
+      <button type="submit" style="margin-top:6px;width:100%;padding:12px;border-radius:8px;border:none;background:oklch(0.75 0.13 195);color:oklch(0.15 0.02 260);font:600 14px 'IBM Plex Sans',sans-serif;cursor:pointer">Sign in</button>
+    </form>
+
+    <div style="margin-top:22px;padding-top:18px;border-top:1px solid rgba(255,255,255,.07);font:400 11.5px/1.5 'IBM Plex Sans',sans-serif;color:oklch(0.45 0.012 260);text-align:center">Accounts are created by an administrator via <code>scripts/create_user.py</code> — there is no self-service signup.</div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="muted" style="margin-bottom:8px">Incident description:</div>
+<textarea id="description-input" class="textarea" style="margin-bottom:12px" placeholder="e.g. The entire Las Vegas office has no internet and can't reach any internal systems"></textarea>
+
+<div class="muted" style="margin-bottom:8px">Additional context (optional):</div>
+<input type="text" id="context-input" class="input" style="margin-bottom:18px" placeholder="e.g. affects the Las Vegas branch only" />
+
+<button id="classify-btn" class="btn" style="background:var(--blue);margin-bottom:24px">Classify</button>
+
+<div id="result"></div>
+
+{% endblock %}
+{% block extra_js %}
+<script src="/static/classifier.js"></script>
+{% endblock %}

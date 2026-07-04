@@ -1,0 +1,43 @@
+{% set nav_items = [
+  ("dashboard", "/dashboard", "Ticket Dashboard", "var(--teal)"),
+  ("ask-data", "/ask-data", "Ask Your Data", "var(--cyan)"),
+  ("policy-qa", "/policy-qa", "Policy Q&amp;A", "var(--violet)"),
+  ("orchestrator", "/orchestrator", "Ticket Orchestrator", "var(--blue)"),
+  ("classifier", "/classifier", "Incident Classifier", "var(--success)"),
+] %}
+<nav class="sidebar">
+  <a href="/dashboard" class="sidebar-brand">
+    <div style="width:9px;height:9px;border-radius:50%;background:var(--teal)"></div>
+    <span style="font:600 15px var(--font-heading);color:var(--text);letter-spacing:.2px">IT Ops Suite</span>
+  </a>
+
+  <div class="sidebar-nav">
+    {% for key, href, label, color in nav_items %}
+    <a href="{{ href }}" class="sidebar-nav-item{{ ' active' if active == key else '' }}" style="--accent:{{ color }}">
+      <span class="dot"></span><span>{{ label|safe }}</span>
+    </a>
+    {% endfor %}
+    <div class="sidebar-hairline"></div>
+    <a href="/settings" class="sidebar-nav-item{{ ' active' if active == 'settings' else '' }}" style="--accent:var(--text-softer)">
+      <span class="dot"></span><span>Settings</span>
+    </a>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="theme-toggle-row">
+      <span style="font:500 12px var(--font-body);color:var(--text-softer)">Light mode</span>
+      <div id="theme-toggle" class="theme-toggle" onclick="itops.toggleTheme()"><div class="thumb"></div></div>
+    </div>
+    <div class="sidebar-hairline"></div>
+    <div class="user-block">
+      <div class="user-avatar">{{ user.full_name[:2].upper() if user else "?" }}</div>
+      <div style="flex:1;min-width:0">
+        <div class="user-name">{{ user.full_name if user else "" }}</div>
+        <div class="user-role">{{ user.role if user else "" }}</div>
+      </div>
+    </div>
+    <form method="post" action="/logout" class="logout-form">
+      <button type="submit" class="logout-link">Log out</button>
+    </form>
+  </div>
+</nav>

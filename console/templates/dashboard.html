@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block content %}
+
+<details class="card" id="sources-panel" style="margin-bottom:20px;padding:18px 22px">
+  <summary style="cursor:pointer;font:600 13px var(--font-body);color:var(--text)">Data Sources — connect ServiceNow, ClickUp, Zendesk, or upload a spreadsheet</summary>
+
+  <div style="margin-top:18px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="font:600 12.5px var(--font-body);color:var(--text)">Connections</div>
+      <button id="sync-all-btn" class="chip" style="border:none">Sync All Now</button>
+    </div>
+    <div id="sources-list" style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px"></div>
+
+    <div style="font:600 12.5px var(--font-body);color:var(--text);margin-bottom:10px">Add a connection</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+      <input type="text" id="src-label" class="input" style="max-width:220px" placeholder="Label, e.g. Acme Corp ServiceNow" />
+      <select id="src-kind" class="select">
+        <option value="servicenow">ServiceNow</option>
+        <option value="clickup">ClickUp</option>
+        <option value="zendesk">Zendesk</option>
+      </select>
+      <select id="src-interval" class="select" title="How often this connection re-syncs automatically">
+        <option value="0">Manual only</option>
+        <option value="15">Every 15 minutes</option>
+        <option value="30">Every 30 minutes</option>
+        <option value="60">Every hour</option>
+        <option value="360">Every 6 hours</option>
+        <option value="1440">Every 24 hours</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+      <input type="text" id="src-instance" class="input" style="max-width:220px" placeholder="Instance (ServiceNow) / Subdomain (Zendesk)" />
+      <input type="text" id="src-username" class="input" style="max-width:220px" placeholder="Username (ServiceNow) / Email (Zendesk)" />
+      <input type="password" id="src-token" class="input" style="max-width:220px" placeholder="Password / API Token" />
+      <input type="text" id="src-list" class="input" style="max-width:180px" placeholder="ClickUp List ID" />
+    </div>
+    <button id="add-source-btn" class="btn" style="background:var(--teal)">Add Connection</button>
+    <div id="add-source-error" style="margin-top:8px"></div>
+
+    <div class="sidebar-hairline" style="margin:20px 0"></div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="font:600 12.5px var(--font-body);color:var(--text)">Upload a CSV or XLSX file</div>
+      <a href="/api/tickets/upload/template" class="chip" style="text-decoration:none">⬇ Download template (.xlsx)</a>
+    </div>
+    <div class="muted" style="margin-bottom:10px;font-size:12px">Required columns: description, category, priority, assigned_team, status. Optional: sys_id, created_date, resolved_date, resolution_hours.</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <input type="text" id="upload-label" class="input" style="max-width:220px" placeholder="Source label, e.g. Q3 Spreadsheet Export" />
+      <input type="file" id="upload-file" accept=".csv,.xlsx" />
+      <button id="upload-btn" class="btn" style="background:var(--cyan)">Upload</button>
+    </div>
+    <div id="upload-result" style="margin-top:8px"></div>
+  </div>
+</details>
+
+<div style="display:flex;gap:14px;margin-bottom:24px;flex-wrap:wrap">
+  <select id="entity-select" class="select"></select>
+  <select id="team-select" class="select"></select>
+</div>
+
+<div id="dashboard-body">
+  <div class="muted" style="padding:60px 0;text-align:center">Loading ticket data…</div>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script src="/static/dashboard_sources.js"></script>
+<script src="/static/dashboard.js"></script>
+{% endblock %}
