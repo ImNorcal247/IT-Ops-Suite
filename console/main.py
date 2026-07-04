@@ -14,6 +14,7 @@ app.state.policy_collection are shared in-process state, one instance per
 worker process, not safe to split across multiple workers.
 """
 
+import asyncio
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -21,7 +22,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from starlette.types import Receive, Scope, Send
 
-from console.db import ensure_users_table
+from console.db import ensure_import_sources_table, ensure_users_table
 from console.routers import (
     ask_data,
     auth_routes,
@@ -36,16 +37,40 @@ from modules.policy_qa import build_knowledge_base
 from modules.ticket_sinks import SinkConfig
 
 STATIC_DIR = Path(__file__).parent / "static"
+AUTO_SYNC_CHECK_SECONDS = 60
+
+
+async def _auto_sync_loop():
+    """Checks every AUTO_SYNC_CHECK_SECONDS for data sources whose configured
+    sync_interval_minutes has elapsed and syncs them. Runs for the life of
+    the process — cancelled in lifespan's shutdown. dashboard.sync_due_sources()
+    already isolates failures per-source, so one bad connection doesn't stop
+    the others or crash this loop."""
+    while True:
+        await asyncio.sleep(AUTO_SYNC_CHECK_SECONDS)
+        try:
+            results = await asyncio.to_thread(dashboard.sync_due_sources)
+            for r in results:
+                if r["ok"]:
+                    print(f"  [auto-sync] {r['label']}: {r['count']} ticket(s)")
+                else:
+                    print(f"  ⚠️  [auto-sync] {r['label']} failed: {r['error']}")
+        except Exception as e:
+            print(f"  ⚠️  [auto-sync] loop error: {e}")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     ensure_users_table()
+    ensure_import_sources_table()
     app.state.sink_config = SinkConfig()
     collection, chunk_count = build_knowledge_base()
     app.state.policy_collection = collection
     app.state.policy_chunk_count = chunk_count
+
+    sync_task = asyncio.create_task(_auto_sync_loop())
     yield
+    sync_task.cancel()
 
 
 class NoCacheStaticFiles(StaticFiles):

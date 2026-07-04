@@ -4,10 +4,10 @@ const PRIORITY_COLORS = {
   Medium: { bg: "rgba(100,140,230,.14)", color: "var(--blue)" },
   Low: { bg: "rgba(90,190,150,.14)", color: "var(--teal)" },
 };
-const CATEGORY_COLORS = {
-  Network: "var(--teal)", Application: "var(--cyan)", Hardware: "var(--violet)",
-  Access: "var(--blue)", Database: "var(--success)", Security: "var(--critical)",
-};
+// Categories are whatever's actually in the data (real imported tickets
+// won't all fit a fixed name->color map) — assign colors from a fixed
+// palette by position instead.
+const CATEGORY_PALETTE = ["var(--teal)", "var(--cyan)", "var(--violet)", "var(--blue)", "var(--success)", "var(--critical)", "var(--text-softer)"];
 
 let teamsByEntity = { "All Entities": [] };
 
@@ -39,13 +39,14 @@ function renderDashboard(data) {
   const maxCount = Math.max(pc.Critical, pc.High, pc.Medium, pc.Low, 1);
   const barHeight = (count) => Math.max(4, Math.round((count / maxCount) * 120));
 
-  const catTotal = Object.values(cc).reduce((a, b) => a + b, 0) || 1;
+  const catEntries = Object.entries(cc);
+  const catTotal = catEntries.reduce((a, [, count]) => a + count, 0) || 1;
   let acc = 0;
-  const stops = Object.entries(cc).map(([cat, count]) => {
+  const stops = catEntries.map(([cat, count], i) => {
     const start = acc / catTotal;
     acc += count;
     const end = acc / catTotal;
-    return `${CATEGORY_COLORS[cat]} ${start}turn ${end}turn`;
+    return `${CATEGORY_PALETTE[i % CATEGORY_PALETTE.length]} ${start}turn ${end}turn`;
   });
 
   const rowsHtml = data.rows.map((t) => `
@@ -83,7 +84,7 @@ function renderDashboard(data) {
         <div class="donut-row">
           <div class="donut" style="background:conic-gradient(${stops.join(", ")})"></div>
           <div class="donut-legend">
-            ${Object.entries(cc).map(([cat, count]) => `<div class="legend-row"><div class="swatch" style="background:${CATEGORY_COLORS[cat]}"></div>${cat} (${count})</div>`).join("")}
+            ${catEntries.map(([cat, count], i) => `<div class="legend-row"><div class="swatch" style="background:${CATEGORY_PALETTE[i % CATEGORY_PALETTE.length]}"></div>${escapeHtml(cat)} (${count})</div>`).join("")}
           </div>
         </div>
       </div>
