@@ -22,6 +22,11 @@ ServiceNow/Zendesk instance customization — adjust the *_PRIORITY_MAP /
 
 import hashlib
 from datetime import datetime
+from io import BytesIO
+
+from openpyxl import Workbook
+from openpyxl.styles import Alignment, Font, PatternFill
+from openpyxl.utils import get_column_letter
 
 import pandas as pd
 import requests
@@ -251,6 +256,83 @@ def import_from_dataframe(df: pd.DataFrame, source_entity: str) -> list[dict]:
         row["sys_id"] = str(raw_sys_id).strip() if pd.notna(raw_sys_id) and str(raw_sys_id).strip() else _synth_sys_id(row, source_entity)
         rows.append(row)
     return rows
+
+
+TEMPLATE_COLUMNS = [
+    # (header, is_required, example_1, example_2)
+    ("sys_id", False, "", ""),
+    ("description", True, "Printer jam in accounting", "VPN gateway flapping"),
+    ("category", True, "Hardware", "Network"),
+    ("priority", True, "Low", "Critical"),
+    ("assigned_team", True, "Desktop Support", "Network Operations"),
+    ("status", True, "Open", "In Progress"),
+    ("created_date", False, "2026-06-01", "2026-06-03"),
+    ("resolved_date", False, "", ""),
+    ("resolution_hours", False, "", ""),
+]
+VALID_PRIORITIES = ["Critical", "High", "Medium", "Low"]
+VALID_STATUSES = ["Open", "In Progress", "Resolved", "Closed"]
+
+REQUIRED_FILL = PatternFill(start_color="FFE0F2F1", end_color="FFE0F2F1", fill_type="solid")
+HEADER_FONT = Font(bold=True)
+
+
+def build_upload_template() -> BytesIO:
+    """Generates the downloadable .xlsx template from the same column
+    contract import_from_dataframe() validates against, so the two can't
+    drift out of sync with each other."""
+    wb = Workbook()
+
+    ws = wb.active
+    ws.title = "Tickets"
+    for col_idx, (header, required, ex1, ex2) in enumerate(TEMPLATE_COLUMNS, start=1):
+        # Header text is exactly what import_from_dataframe() expects — no
+        # decoration like a "*" suffix — so this file can be re-uploaded
+        # as-is (after replacing the two example rows with real data)
+        # without editing column headers first. "Required" is conveyed by
+        # styling only.
+        cell = ws.cell(row=1, column=col_idx, value=header)
+        cell.font = HEADER_FONT
+        if required:
+            cell.fill = REQUIRED_FILL
+        ws.cell(row=2, column=col_idx, value=ex1)
+        ws.cell(row=3, column=col_idx, value=ex2)
+        ws.column_dimensions[get_column_letter(col_idx)].width = max(14, len(header) + 4)
+    ws.freeze_panes = "A2"
+
+    instructions = wb.create_sheet("Instructions")
+    lines = [
+        ("Required columns (highlighted in the Tickets sheet):", True),
+        (", ".join(h for h, req, *_ in TEMPLATE_COLUMNS if req), False),
+        ("", False),
+        ("Optional columns:", True),
+        (", ".join(h for h, req, *_ in TEMPLATE_COLUMNS if not req), False),
+        ("", False),
+        ("Valid priority values:", True),
+        (", ".join(VALID_PRIORITIES), False),
+        ("", False),
+        ("Valid status values (others are accepted but won't match dashboard filters as cleanly):", True),
+        (", ".join(VALID_STATUSES), False),
+        ("", False),
+        ("sys_id:", True),
+        ("Optional — leave blank and one will be generated from the row's content. "
+         "Re-uploading a file with the same sys_id values updates those tickets instead "
+         "of creating duplicates.", False),
+        ("", False),
+        ("category / assigned_team:", True),
+        ("Free text — use whatever values match your organization. New categories show up "
+         "automatically on the Dashboard's category chart.", False),
+    ]
+    for row_idx, (text, bold) in enumerate(lines, start=1):
+        cell = instructions.cell(row=row_idx, column=1, value=text)
+        cell.font = Font(bold=bold)
+        cell.alignment = Alignment(wrap_text=True)
+    instructions.column_dimensions["A"].width = 100
+
+    buffer = BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+    return buffer
 
 
 def _clean_upload_date(value) -> str | None:

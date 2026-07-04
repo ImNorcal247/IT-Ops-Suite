@@ -3,11 +3,13 @@ from datetime import datetime, timezone
 
 import pandas as pd
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from console.db import DB_FILE, get_connection
 from console.deps import require_user_api
 from modules.ticket_import import (
+    build_upload_template,
     import_from_clickup,
     import_from_dataframe,
     import_from_servicenow,
@@ -301,6 +303,16 @@ def sync_all_sources(user=Depends(require_user_api)):
         return {"results": results}
     finally:
         conn.close()
+
+
+@router.get("/upload/template")
+def download_upload_template(user=Depends(require_user_api)):
+    buffer = build_upload_template()
+    return StreamingResponse(
+        buffer,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": "attachment; filename=ticket_import_template.xlsx"},
+    )
 
 
 @router.post("/upload")

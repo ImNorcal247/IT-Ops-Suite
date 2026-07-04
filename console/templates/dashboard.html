@@ -39,7 +39,10 @@
 
     <div class="sidebar-hairline" style="margin:20px 0"></div>
 
-    <div style="font:600 12.5px var(--font-body);color:var(--text);margin-bottom:10px">Upload a CSV or XLSX file</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="font:600 12.5px var(--font-body);color:var(--text)">Upload a CSV or XLSX file</div>
+      <a href="/api/tickets/upload/template" class="chip" style="text-decoration:none">⬇ Download template (.xlsx)</a>
+    </div>
     <div class="muted" style="margin-bottom:10px;font-size:12px">Required columns: description, category, priority, assigned_team, status. Optional: sys_id, created_date, resolved_date, resolution_hours.</div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
       <input type="text" id="upload-label" class="input" style="max-width:220px" placeholder="Source label, e.g. Q3 Spreadsheet Export" />
