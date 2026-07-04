@@ -9,8 +9,8 @@ The suite now ships in two forms:
 
 | | What it is | Who it's for |
 |---|---|---|
-| **Production console** (`console/`) | A real FastAPI web app — multi-user login, six logged-in screens, backed by the same modules below | The way to actually run and use this day to day |
-| **Streamlit reference app** (`app.py`) | The original single-file prototype — no login, one shared session | Kept working as the original capstone artifact and for quick local experimentation |
+| **Production console** (`console/`) | A real FastAPI web app — multi-user login, six logged-in screens, backed by the same modules below | The IT Admin or Executive to run and use this day to day |
+| **Streamlit reference app** (`app.py`) | The original single-file prototype — no login, one shared session | Whoever wants to tinker with the original capstone artifact for quick local experimentation |
 
 Both front ends call the exact same backend logic in `modules/`, so behavior is
 identical either way — only the UI and auth model differ.
@@ -64,7 +64,7 @@ empty, confusing list. Below the filters: 5 metric cards (total tickets, source
 entities, open/in-progress, critical priority, average resolution hours), a bar chart of
 tickets by priority, a donut chart of tickets by category, and a table of the first 8
 matching tickets with a "+N more" footer. Everything reads directly from `it_tickets.db`
-on each filter change — there's no separate refresh button, just change a dropdown.
+on each filter change — there's no separate refresh button, just change a dropdown. To get all desired data into `it_tickets.db`, just configure your API endpoints, or import the data with the available excel template which can be downloaded from the site directly. 
 
 **Ask Your Data** (`/ask-data`)
 Type a plain-English question about the ticket data (or click one of the three example
@@ -76,7 +76,7 @@ results are handed back to Claude to phrase as a plain-English answer. Click "Sh
 generated SQL and raw results" under the answer to see exactly what ran.
 
 **Policy Q&A** (`/policy-qa`)
-Ask a question about IT policy in plain English. The three `.txt` files in
+Ask a question about and Enterprise policy in plain English. The three `.txt` files in
 `docs/policies/` (password, incident response, remote access) are chunked and embedded
 into an in-memory ChromaDB collection once at server startup; your question is matched
 against that index, and only chunks under a similarity-distance threshold are used as
@@ -210,6 +210,3 @@ docs/policies/          Sample policy documents indexed by Policy Q&A
 setup_sample_data.py    Generates the demo it_tickets.db
 ```
 
-## License
-
-MIT
