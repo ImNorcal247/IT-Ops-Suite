@@ -18,23 +18,18 @@ Usage:
 """
 
 import os
-import sys
 import sqlite3
 from pathlib import Path
 
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-import anthropic
 
-# Make modules/ importable, and let ticket_orchestrator.py's sibling
-# imports (ticket_sinks, ticket_id_map) resolve without a package structure
-sys.path.insert(0, str(Path(__file__).parent / "modules"))
-
-from policy_qa import build_knowledge_base, query_policies
-from incident_classifier import classify_incident
-from ticket_orchestrator import create_ticket
-from ticket_sinks import test_clickup_connection, test_servicenow_connection
+from modules.policy_qa import build_knowledge_base, query_policies
+from modules.incident_classifier import classify_incident
+from modules.ticket_orchestrator import create_ticket
+from modules.ticket_sinks import test_clickup_connection, test_servicenow_connection, SinkConfig
+from modules.ticket_qa import get_claude_client, get_schema_summary, generate_sql, is_safe_query, interpret_results
 
 DB_FILE = "it_tickets.db"
 
@@ -60,69 +55,35 @@ def load_tickets():
     return df
 
 
-def get_schema_summary(df):
-    return f"""
-Table: tickets
-Columns:
-- id (INTEGER): unique ticket ID
-- source_entity (TEXT): which company/franchise/system this ticket came from. Actual values: {sorted(df['source_entity'].dropna().unique().tolist())}
-- description (TEXT): brief description of the issue
-- category (TEXT): actual values: {sorted(df['category'].dropna().unique().tolist())}
-- priority (TEXT): actual values: {sorted(df['priority'].dropna().unique().tolist())}
-- assigned_team (TEXT): actual values: {sorted(df['assigned_team'].dropna().unique().tolist())}
-- status (TEXT): actual values: {sorted(df['status'].dropna().unique().tolist())}
-- created_date (TEXT): format YYYY-MM-DD
-- resolved_date (TEXT): format YYYY-MM-DD, may be NULL if not yet resolved
-- resolution_hours (REAL): hours taken to resolve, may be NULL if not yet resolved
-"""
+@st.cache_resource(show_spinner="Building policy knowledge base...")
+def cached_knowledge_base():
+    """build_knowledge_base() is now a plain function (shared with the
+    FastAPI console, which caches it differently) — wrap it here so it
+    still only runs once per Streamlit session, not once per rerun."""
+    return build_knowledge_base()
 
 
-def get_claude_client():
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    return anthropic.Anthropic(api_key=api_key) if api_key else None
-
-
-def generate_sql(client, question, schema):
-    message = client.messages.create(
-        model="claude-haiku-4-5-20251001",
-        max_tokens=300,
-        system=f"""You are a SQL expert. Convert the user's question into a single SQLite query.
-
-DATABASE SCHEMA:
-{schema}
-
-IMPORTANT CONTEXT:
-- The current year for relative date references is 2026
-- Match the user's wording to the ACTUAL values listed in the schema
-
-Rules:
-- Return ONLY the SQL query, no explanation, no markdown, no backticks
-- Only generate SELECT statements — never INSERT, UPDATE, DELETE, DROP, ALTER
-- If the question can't be answered with this schema, return: INVALID_QUERY""",
-        messages=[{"role": "user", "content": question}],
+def sink_config_from_env() -> SinkConfig:
+    """Ticket sink config now flows in explicitly rather than being read
+    from os.environ deep inside modules/ticket_sinks.py — build it here
+    from the same env vars the Settings tab below writes to."""
+    return SinkConfig(
+        mode=os.environ.get("TICKET_MODE", "mock"),
+        dry_run=os.environ.get("DRY_RUN", "false").lower() == "true",
+        clickup_token=os.environ.get("CLICKUP_API_TOKEN", ""),
+        clickup_default_list=os.environ.get("CLICKUP_LIST_ID_DEFAULT", ""),
+        clickup_lists={
+            cat: os.environ.get(env_key, "")
+            for cat, env_key in [
+                ("Application", "CLICKUP_LIST_APPLICATION"), ("Network", "CLICKUP_LIST_NETWORK"),
+                ("Hardware", "CLICKUP_LIST_HARDWARE"), ("Access", "CLICKUP_LIST_ACCESS"),
+                ("Database", "CLICKUP_LIST_DATABASE"), ("Security", "CLICKUP_LIST_SECURITY"),
+            ]
+        },
+        servicenow_instance=os.environ.get("SERVICENOW_INSTANCE", ""),
+        servicenow_username=os.environ.get("SERVICENOW_USERNAME", ""),
+        servicenow_password=os.environ.get("SERVICENOW_PASSWORD", ""),
     )
-    sql = message.content[0].text.strip()
-    return sql.replace("```sql", "").replace("```", "").strip()
-
-
-def is_safe_query(sql):
-    sql_upper = sql.upper().strip()
-    if not sql_upper.startswith("SELECT"):
-        return False
-    return not any(kw in sql_upper for kw in ["DROP", "DELETE", "UPDATE", "INSERT", "ALTER", "TRUNCATE", "EXEC"])
-
-
-def interpret_results(client, question, sql, result_df):
-    results_text = result_df.head(20).to_string(index=False)
-    message = client.messages.create(
-        model="claude-haiku-4-5-20251001",
-        max_tokens=500,
-        system="You are a helpful IT operations analyst. Given a question and query results, "
-               "give a clear, concise, natural language answer. Don't mention SQL or technical "
-               "details. If results are empty, say so clearly.",
-        messages=[{"role": "user", "content": f"Question: {question}\nSQL used: {sql}\nResults:\n{results_text}"}],
-    )
-    return message.content[0].text
 
 
 # ── Header ──────────────────────────────────────────────────────────────────
@@ -287,7 +248,7 @@ with tab3:
     if not os.environ.get("ANTHROPIC_API_KEY"):
         st.error("ANTHROPIC_API_KEY environment variable not found.")
     else:
-        collection, chunk_count = build_knowledge_base()
+        collection, chunk_count = cached_knowledge_base()
         if collection is None:
             st.info("No policy documents found in `docs/policies/`. Add `.txt` files there and reload.")
         else:
@@ -376,7 +337,7 @@ with tab5:
 
             with st.spinner("Running pipeline..."):
                 try:
-                    final = create_ticket(problem_desc, progress_callback=show_progress)
+                    final = create_ticket(problem_desc, progress_callback=show_progress, sink_config=sink_config_from_env())
                     st.divider()
                     if final.get("action") == "linked_to_existing":
                         if final.get("sink") == "both":

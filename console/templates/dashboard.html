@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div style="display:flex;gap:14px;margin-bottom:24px;flex-wrap:wrap">
+  <select id="entity-select" class="select"></select>
+  <select id="team-select" class="select"></select>
+</div>
+
+<div id="dashboard-body">
+  <div class="muted" style="padding:60px 0;text-align:center">Loading ticket data…</div>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script src="/static/dashboard.js"></script>
+{% endblock %}

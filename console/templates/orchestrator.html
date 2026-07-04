@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="muted" style="margin-bottom:8px">Describe the problem:</div>
+<div style="display:flex;gap:10px;margin-bottom:26px">
+  <input type="text" id="problem-input" class="input" placeholder="e.g. My laptop screen is flickering and sometimes goes completely black" />
+  <button id="submit-btn" class="btn" style="background:var(--teal)">Submit</button>
+</div>
+
+<div id="stages"></div>
+<div id="banner"></div>
+
+{% endblock %}
+{% block extra_js %}
+<script src="/static/orchestrator.js"></script>
+{% endblock %}

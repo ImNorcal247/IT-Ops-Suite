@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ header_title }} · IT Ops Suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/console.css">
+<script>
+  (function () {
+    var theme = localStorage.getItem("itops-theme") || "dark";
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+</head>
+<body>
+<div class="app-shell">
+  {% include "_sidebar.html" %}
+  <div class="main">
+    <div class="header-bar">
+      <div class="header-title">{{ header_title }}</div>
+      <div class="header-status" id="header-status">{{ header_status or "" }}</div>
+    </div>
+    <div class="page-content{{ ' narrow' if narrow else '' }}">
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+<script src="/static/console.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

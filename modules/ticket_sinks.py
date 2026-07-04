@@ -1,26 +1,39 @@
 """
 modules/ticket_sinks.py
 
-Pluggable ticketing backends. Supports four modes via TICKET_MODE:
+Pluggable ticketing backends. Supports four modes via SinkConfig.mode:
 "mock" | "clickup" | "servicenow" | "both"
 
 "both" uses MultiSink to fan writes out to ClickUp AND ServiceNow
 simultaneously, and merges duplicate-check reads across both.
 
-IMPORTANT: category->list mapping for ClickUp used to be a module-level
-dict computed once at import time from os.environ. That's a real bug in a
-Streamlit app with a runtime Settings tab: env vars set later in the
-session would silently never be picked up, because the dict was already
-frozen at first import. get_category_to_list() below reads os.environ
-fresh on every call instead, so Settings-tab changes take effect
-immediately on the next pipeline run.
+Config (mode, dry_run, credentials) is passed explicitly via SinkConfig
+rather than read from os.environ — the original Streamlit-only version
+read process-global env vars, which isn't safe once this runs behind a
+real multi-request server where Settings can be read/written per request
+without depending on process env. Callers (e.g. a web Settings endpoint)
+own a single shared SinkConfig instance and pass it in explicitly.
 """
 
-import os
 import re
 import json
+from dataclasses import dataclass, field
+
 import requests
-import ticket_id_map
+
+import modules.ticket_id_map as ticket_id_map
+
+
+@dataclass
+class SinkConfig:
+    mode: str = "mock"
+    dry_run: bool = True
+    clickup_token: str = ""
+    clickup_default_list: str = ""
+    clickup_lists: dict = field(default_factory=dict)  # {"Application": "list_id", ...}
+    servicenow_instance: str = ""
+    servicenow_username: str = ""
+    servicenow_password: str = ""
 
 
 # ── Sink interface ──────────────────────────────────────────────────────────
@@ -66,21 +79,12 @@ CLICKUP_PRIORITY_MAP = {"P1": 1, "P2": 2, "P3": 3, "P4": 4}
 TICKET_ID_PREFIX_RE = re.compile(r"^\[(INC-\d+)\]\s*(.*)$")
 
 
-def get_category_to_list() -> dict:
-    """Read fresh from os.environ every call — NOT cached at import time —
-    so changes made in the Settings tab take effect on the next run."""
-    return {
-        "Application": os.environ.get("CLICKUP_LIST_APPLICATION", ""),
-        "Network": os.environ.get("CLICKUP_LIST_NETWORK", ""),
-        "Hardware": os.environ.get("CLICKUP_LIST_HARDWARE", ""),
-        "Access": os.environ.get("CLICKUP_LIST_ACCESS", ""),
-        "Database": os.environ.get("CLICKUP_LIST_DATABASE", ""),
-        "Security": os.environ.get("CLICKUP_LIST_SECURITY", ""),
-    }
+def get_category_to_list(config: SinkConfig) -> dict:
+    return dict(config.clickup_lists)
 
 
-def get_list_to_category() -> dict:
-    return {v: k for k, v in get_category_to_list().items() if v}
+def get_list_to_category(config: SinkConfig) -> dict:
+    return {v: k for k, v in get_category_to_list(config).items() if v}
 
 
 def test_clickup_connection(token: str) -> tuple[bool, str]:
@@ -96,15 +100,16 @@ def test_clickup_connection(token: str) -> tuple[bool, str]:
 
 
 class ClickUpSink(TicketSink):
-    def __init__(self, dry_run: bool = False):
-        self.token = os.environ.get("CLICKUP_API_TOKEN", "")
-        self.default_list_id = os.environ.get("CLICKUP_LIST_ID_DEFAULT", "")
-        self.dry_run = dry_run
+    def __init__(self, config: SinkConfig):
+        self.config = config
+        self.token = config.clickup_token
+        self.default_list_id = config.clickup_default_list
+        self.dry_run = config.dry_run
         if not self.token:
             raise RuntimeError("CLICKUP_API_TOKEN is not set. search_existing() requires a real token even in dry-run mode.")
 
     def _lists_to_search(self, category: str | None) -> list[str]:
-        category_to_list = get_category_to_list()
+        category_to_list = get_category_to_list(self.config)
         ids = set(filter(None, category_to_list.values()))
         if self.default_list_id:
             ids.add(self.default_list_id)
@@ -116,7 +121,7 @@ class ClickUpSink(TicketSink):
         return ordered
 
     def search_existing(self, category: str | None = None) -> list[dict]:
-        list_to_category = get_list_to_category()
+        list_to_category = get_list_to_category(self.config)
         results = []
         for list_id in self._lists_to_search(category):
             try:
@@ -150,7 +155,7 @@ class ClickUpSink(TicketSink):
         return results
 
     def create(self, ticket: dict) -> dict:
-        category_to_list = get_category_to_list()
+        category_to_list = get_category_to_list(self.config)
         list_id = category_to_list.get(ticket["category"]) or self.default_list_id
         if not list_id:
             raise RuntimeError(f"No ClickUp List ID configured for category '{ticket['category']}' and no CLICKUP_LIST_ID_DEFAULT set.")
@@ -227,11 +232,11 @@ def test_servicenow_connection(instance: str, username: str, password: str) -> t
 
 
 class ServiceNowSink(TicketSink):
-    def __init__(self, dry_run: bool = False):
-        self.instance = os.environ.get("SERVICENOW_INSTANCE", "")
-        self.username = os.environ.get("SERVICENOW_USERNAME", "")
-        self.password = os.environ.get("SERVICENOW_PASSWORD", "")
-        self.dry_run = dry_run
+    def __init__(self, config: SinkConfig):
+        self.instance = config.servicenow_instance
+        self.username = config.servicenow_username
+        self.password = config.servicenow_password
+        self.dry_run = config.dry_run
         if not (self.instance and self.username and self.password):
             raise RuntimeError("SERVICENOW_INSTANCE, SERVICENOW_USERNAME, SERVICENOW_PASSWORD must all be set.")
 
@@ -350,23 +355,21 @@ class MultiSink(TicketSink):
 
 # ── Factory ──────────────────────────────────────────────────────────────────
 
-def get_active_sinks() -> TicketSink:
-    """Reads TICKET_MODE (mock | clickup | servicenow | both) and DRY_RUN,
-    returns a single sink instance, or a MultiSink for dual-write mode.
-    All returned objects implement the same TicketSink interface, so callers
-    never need to know which mode is active."""
-    mode = os.environ.get("TICKET_MODE", "mock").lower()
-    dry_run = os.environ.get("DRY_RUN", "false").lower() == "true"
+def get_active_sinks(config: SinkConfig) -> TicketSink:
+    """Given a SinkConfig, returns a single sink instance, or a MultiSink
+    for dual-write ("both") mode. All returned objects implement the same
+    TicketSink interface, so callers never need to know which mode is active."""
+    mode = (config.mode or "mock").lower()
 
     if mode == "both":
         sinks = {}
-        sinks["clickup"] = ClickUpSink(dry_run=dry_run)
-        sinks["servicenow"] = ServiceNowSink(dry_run=dry_run)
+        sinks["clickup"] = ClickUpSink(config)
+        sinks["servicenow"] = ServiceNowSink(config)
         return MultiSink(sinks)
     elif mode == "clickup":
-        return ClickUpSink(dry_run=dry_run)
+        return ClickUpSink(config)
     elif mode == "servicenow":
-        return ServiceNowSink(dry_run=dry_run)
+        return ServiceNowSink(config)
     else:
         return MockSink()
 

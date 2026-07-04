@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div style="font:600 15px var(--font-heading);color:var(--text);margin-bottom:6px">Ticket Orchestrator — Backend Configuration</div>
+<div class="muted" style="margin-bottom:26px;line-height:1.6">Choose where the Orchestrator reads existing tickets from (for duplicate checking) and writes new ones to. Settings here apply for the rest of this server session — they aren't written to disk, so they reset if the server restarts.</div>
+
+<div style="font:500 12px var(--font-body);color:var(--text-soft);margin-bottom:10px">Active backend</div>
+<div id="mode-segmented" class="segmented"></div>
+
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:26px">
+  <div id="dry-run-toggle" class="theme-toggle"><div class="thumb"></div></div>
+  <span style="font:500 13px var(--font-body);color:var(--text-soft)">Dry run (validate payloads, don't actually write)</span>
+</div>
+
+<div id="warning"></div>
+<div id="clickup-fields" style="display:none;margin-bottom:22px">
+  <div style="font:600 13.5px var(--font-body);color:var(--text);margin-bottom:12px">ClickUp</div>
+  <div class="field-group">
+    <input type="password" id="cu-token" class="input" placeholder="API Token" />
+    <input type="text" id="cu-list" class="input" placeholder="Default List ID" />
+  </div>
+  <div id="test-clickup-btn" class="chip" style="display:inline-block">Test ClickUp Connection</div>
+  <div id="cu-result" style="margin-top:10px;font:400 12.5px var(--font-body)"></div>
+</div>
+
+<div id="servicenow-fields" style="display:none;margin-bottom:22px">
+  <div style="font:600 13.5px var(--font-body);color:var(--text);margin-bottom:12px">ServiceNow</div>
+  <div class="field-group">
+    <input type="text" id="sn-instance" class="input" placeholder="Instance name (without .service-now.com)" />
+    <input type="text" id="sn-user" class="input" placeholder="Username" />
+    <input type="password" id="sn-pass" class="input" placeholder="Password" />
+  </div>
+  <div id="test-servicenow-btn" class="chip" style="display:inline-block">Test ServiceNow Connection</div>
+  <div id="sn-result" style="margin-top:10px;font:400 12.5px var(--font-body)"></div>
+</div>
+
+<div class="sidebar-hairline" style="margin:6px 0 22px"></div>
+<div id="save-btn" class="btn" style="background:var(--teal);display:inline-block">💾 Save Configuration</div>
+<div id="saved-note" style="margin-top:14px;font:500 13px var(--font-body);color:var(--success)"></div>
+
+{% endblock %}
+{% block extra_js %}
+<script src="/static/settings.js"></script>
+{% endblock %}

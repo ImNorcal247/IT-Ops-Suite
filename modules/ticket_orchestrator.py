@@ -13,7 +13,7 @@ import time
 from datetime import datetime, timezone
 
 import anthropic
-from ticket_sinks import get_active_sinks
+from modules.ticket_sinks import get_active_sinks, SinkConfig
 
 client = anthropic.Anthropic()
 MODEL = "claude-opus-4-5"
@@ -121,10 +121,11 @@ def assignment_stage(triage: dict) -> dict:
     return call_specialist(system, user_content, ASSIGNMENT_SCHEMA)
 
 
-def create_ticket(raw_input: str, progress_callback=None) -> dict:
+def create_ticket(raw_input: str, progress_callback=None, sink_config: SinkConfig | None = None) -> dict:
     """progress_callback(stage_name, result_dict) is called after each stage,
-    letting the Streamlit UI show live progress instead of only a final result."""
-    sink = get_active_sinks()
+    letting a caller show live progress instead of only a final result.
+    sink_config defaults to SinkConfig() (mock, dry_run) if not supplied."""
+    sink = get_active_sinks(sink_config or SinkConfig())
 
     triage = triage_stage(raw_input)
     if progress_callback:
