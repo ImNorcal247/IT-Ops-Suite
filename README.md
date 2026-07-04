@@ -81,7 +81,7 @@ results are handed back to Claude to phrase as a plain-English answer. Click "Sh
 generated SQL and raw results" under the answer to see exactly what ran.
 
 **Policy Q&A** (`/policy-qa`)
-Ask a question about and Enterprise policy in plain English. The three `.txt` files in
+Ask a question about Enterprise policy in plain English. The three `.txt` files in
 `docs/policies/` (password, incident response, remote access) are chunked and embedded
 into an in-memory ChromaDB collection once at server startup; your question is matched
 against that index, and only chunks under a similarity-distance threshold are used as
